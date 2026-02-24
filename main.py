@@ -48,7 +48,7 @@ class App():
         retun_Button.place(x=0,y=0)  
         
     def Call_Encryption(self,Service:str,Mail:str,Password:str,Master_Password:str): 
-         encrypt(Master_Password.encode(),Password.encode(),Service.encode(),Mail.encode())
+         encrypt(Master_Password.encode(),Password.encode(),Service,Mail)
 
 if __name__ == "__main__":
     App()
