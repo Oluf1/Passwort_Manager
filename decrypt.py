@@ -5,10 +5,11 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import hmac
 import base64
 import json
+import cryptography.exceptions
 
 
 
-def decrypt(Master_pass,Password,Service,Mail):
+def decrypt(Master_pass,Service,Mail):
     key = open("examplekey.txt").read() 
     key = bytes.fromhex(key)
     
@@ -20,21 +21,34 @@ def decrypt(Master_pass,Password,Service,Mail):
         aad = base64.b64decode(entry["aad"])
         ciphertrext = base64.b64decode(entry["ciphertext"])
         iterations = entry["iterations"]
-        Service = entry["Service"]
-        Mail = entry["Mail"]
+        entry_Service = entry["Service"]
+        entry_Mail = entry["Mail"]
         
         kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
         iterations=iterations,
-        )
+        )       
         Derived_Master = kdf.derive(Master_pass)
         final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
         aesgcm = AESGCM(final_key)
-        decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad)
-        print(decrypted_Password)
+        
+        no_Matching_entries = True
+        if entry_Service == Service and entry_Mail== Mail:
+            no_Matching_entries = False
+            try:
+                decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad)
+                print(decrypted_Password)
+                
+                
+            except cryptography.exceptions.InvalidTag:
+                print("Wrong masterpassword")   
+            except Exception as error:
+                print(f"different error:{error}")
+    if no_Matching_entries == True:
+        print("No Matching entry")
         
 
         
-decrypt(b"example",b"example",b"example",b"example")
+

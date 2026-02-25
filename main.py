@@ -1,11 +1,24 @@
 import tkinter as tk
 from encrypt import encrypt
+from decrypt import decrypt
+from tkinter import ttk
+import json
+
 class App():
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry("600x400")
-        
+        with open("exampledata.json") as f:
+            Database = json.load(f)
+        self.Existing_Mails = []
+        self.Existing_Services = []
+        for entry in Database["Entries"]:
+            self.Existing_Mails.append(entry["Mail"])
+            self.Existing_Services.append(entry["Service"])
+        self.Existing_Mails= list(set(self.Existing_Mails))
+        self.Existing_Services = list(set(self.Existing_Services))
         self.Load_StartUI()
+        
         self.root.mainloop()
     
     def Remove_Widgets(self):
@@ -14,7 +27,8 @@ class App():
     def Load_StartUI(self):
         self.Remove_Widgets()
         Select_encryption = tk.Button(self.root,text="encryption",command=self.Load_EncryptionUI)
-        
+        Select_Decryption = tk.Button(self.root,text="decryption",command=self.Load_Decryption)
+        Select_Decryption.place(x=200,y=200)
         Select_encryption.place(x=300,y=200)
     def Load_EncryptionUI(self):
         self.Remove_Widgets() 
@@ -26,13 +40,15 @@ class App():
         Mail_Label = tk.Label(self.root,text="Email")
         Service_Label = tk.Label(self.root,text="Service")
         Password_Label = tk.Label(self.root,text="Password")
-        Master_Password_Label = tk.Label(self.root,text="Master Password")
+        Master_Password_Label = tk.Label(self.root,text="Master_Password")
+        
         def Get_EntryValues():
             Password = Password_Entry.get()
             Master_Password = Master_Password_Entry.get()
             Mail = Mail_Entry.get()
             Service = Service_Entry.get()
-            self.Call_Encryption(Service,Mail,Password,Master_Password)
+            encrypt(Master_Password.encode(),Password.encode(),Service,Mail)
+
         
         Encrypt_Button = tk.Button(self.root,text="Encrypt",command=Get_EntryValues)
         
@@ -46,9 +62,34 @@ class App():
         Password_Label.place(x=350,y=125,height=25)
         Encrypt_Button.place(x=275,y=225,height=25)
         retun_Button.place(x=0,y=0)  
+    def Load_Decryption(self):
+        self.Remove_Widgets()
+        retun_Button = tk.Button(self.root,command=self.Load_StartUI,text="return")
+        Service_combobox = ttk.Combobox(self.root,values=self.Existing_Services)
         
-    def Call_Encryption(self,Service:str,Mail:str,Password:str,Master_Password:str): 
-         encrypt(Master_Password.encode(),Password.encode(),Service,Mail)
+        Master_password_Entry = tk.Entry(self.root)
+        Service_Label = tk.Label(self.root,text="Service")
+        Mail_Label = tk.Label(self.root,text="Mail")
+        Master_password_label = tk.Label(self.root,text="Master password")
+        Mail_combobox = ttk.Combobox(self.root,values=self.Existing_Mails)
+        
+        
+        def Get_Entry_values():
+            Master_pass = Master_password_Entry.get()
+            Service = Service_combobox.get()
+            Mail = Mail_combobox.get()
+            decrypt(Master_pass.encode(),Service,Mail)
+        Decrypt_Button = tk.Button(self.root,command=Get_Entry_values,text="decrypt")
+        
+        Master_password_Entry.place(x=350,y=150,width=100)
+        Master_password_label.place(x=350,y=125,height=25)
+        Mail_combobox.place(x=250,y=150,width=100)
+        Mail_Label.place(x=250,y=125,height=25)
+        Service_combobox.place(x=150,y=150,width=100)
+        Service_Label.place(x=150,y=125,height=25)
+        Decrypt_Button.place(x=275,y=175)
+        retun_Button.place(x=0,y=0)  
+        
 
 if __name__ == "__main__":
     App()

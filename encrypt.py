@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import hmac
 import base64
 import json
+
 def encrypt(Master_pass,Password,Service,Mail):
     Nonce = os.urandom(12)# will be saved with the password, 2 different Nonces will be generated
 
