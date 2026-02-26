@@ -7,25 +7,38 @@
       "salt": "VcOo3OjBqoNj82qtouUgIw==",
       "iterations": 1200000,
       "ciphertext": "ncAT1OOg0ymUgzEcP9D2VVNqUeUt6w0Tz44=",
-      "aad": "IxM+nt17IlMNWdkyJ8RARg=="
+      "aad": "IxM+nt17IlMNWdkyJ8RARg==",
+      "count": 1
     },
     {
       "Service": "examples",
-      "Mail": "examples",
+      "Mail": "example",
       "Nonce": "tI8wPGYzFASwqYHJ",
       "salt": "bV6mrqRgjSjBv/NOtM6kjg==",
       "iterations": 1200000,
       "ciphertext": "6uaYoZ2r9Ip//PLBKN3haCMZEuHDcLyFkCs=",
-      "aad": "Vb4nptuaSvcWkWTstOTt3Q=="
+      "aad": "Vb4nptuaSvcWkWTstOTt3Q==",
+      "count": 1
     },
     {
       "Service": "example",
       "Mail": "example",
-      "Nonce": "ybCw28c9Ts5kKzww",
-      "salt": "djNvZi0AY84LRkT1eeyzEw==",
+      "Nonce": "oCvwdmSEpQgWRl8H",
+      "salt": "eNGC3Ze3v8OIOCB0HvuE8Q==",
       "iterations": 1200000,
-      "ciphertext": "s6LTi0XUC5W7miDNmKb1vdeTs/Gn3UY=",
-      "aad": "BlhzpA32oBcKK9dhD4jVEQ=="
+      "ciphertext": "LI6CnoA1WWFRkk32gOwXqCbxgnDt",
+      "aad": "w7FGrzUzj9nGXdNCps2PRg==",
+      "count": 1
+    },
+    {
+      "Service": "example",
+      "Mail": "example",
+      "Nonce": "szyhlzWimkO3Whuo",
+      "salt": "LJSeFSIFUPbx4lHyMA+/AQ==",
+      "iterations": 1200000,
+      "ciphertext": "kY4cq9KPz7exZlyKLtn8gT34IOSPtbHXkFkKrLfQ",
+      "aad": "PpMfuSZBqKbBFutrmyCyDw==",
+      "count": 2
     }
   ]
 }

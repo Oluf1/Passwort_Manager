@@ -9,12 +9,13 @@ import cryptography.exceptions
 
 
 
-def decrypt(Master_pass,Service,Mail):
+def decrypt(Master_pass,Service,Mail,count):
     key = open("examplekey.txt").read() 
     key = bytes.fromhex(key)
     
     with open("exampledata.json") as f:
         Database = json.load(f)
+    no_Matching_entries = True
     for entry in Database["Entries"]:
         salt = base64.b64decode( entry["salt"])
         Nonce = base64.b64decode(entry["Nonce"])
@@ -23,6 +24,7 @@ def decrypt(Master_pass,Service,Mail):
         iterations = entry["iterations"]
         entry_Service = entry["Service"]
         entry_Mail = entry["Mail"]
+        entry_count = entry["count"]
         
         kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -34,8 +36,8 @@ def decrypt(Master_pass,Service,Mail):
         final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
         aesgcm = AESGCM(final_key)
         
-        no_Matching_entries = True
-        if entry_Service == Service and entry_Mail== Mail:
+        
+        if entry_Service == Service and entry_Mail== Mail and entry_count == count:
             no_Matching_entries = False
             try:
                 decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad)
