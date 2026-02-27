@@ -25,19 +25,20 @@ def decrypt(Master_pass,Service,Mail,count):
         entry_Service = entry["Service"]
         entry_Mail = entry["Mail"]
         entry_count = entry["count"]
-        
-        kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=iterations,
-        )       
-        Derived_Master = kdf.derive(Master_pass)
-        final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
-        aesgcm = AESGCM(final_key)
+            
+            
         
         
         if entry_Service == Service and entry_Mail== Mail and entry_count == count:
+            kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=iterations,
+            )       
+            Derived_Master = kdf.derive(Master_pass)
+            final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
+            aesgcm = AESGCM(final_key)
             no_Matching_entries = False
             try:
                 decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad)
