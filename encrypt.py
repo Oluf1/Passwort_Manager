@@ -7,7 +7,7 @@ import hmac
 import base64
 import json
 
-def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count_given:int,Update_Existing:bool):
+def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Update_Existing:bool):
     Nonce = os.urandom(12)# will be saved with the password, 2 different Nonces will be generated
 
     key = open("examplekey.txt").read() #Will be saved on a hard drive
@@ -26,7 +26,7 @@ def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count_given:i
     final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
     aesgcm = AESGCM(final_key) # will not be saved
     encryptedpassword = aesgcm.encrypt(Nonce,Password,aad) # will be saved
-    count = 1
+
 
 
 
@@ -42,30 +42,31 @@ def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count_given:i
                     "iterations":KDFIterations,
                     "ciphertext":base64.b64encode(encryptedpassword).decode(),
                     "aad": base64.b64encode(aad).decode(),
-                    "count":0
+                    "count":count
                             }
+    
     for entry in Database["Entries"]:
-        if entry["Service"] == Service and entry["Mail"]== Mail :
-            if Update_Existing == False:
-                count+=1
+        if (entry["count"] == count
+                and Update_Existing
+                and entry["Service"] == Service
+                and entry["Mail"] == Mail ):
+            index = Database["Entries"].index(entry)
+            entry["ciphertext"] = base64.b64encode(encryptedpassword).decode()
+            entry["salt"] = base64.b64encode(salt).decode() 
+            entry["Nonce"] = base64.b64encode(Nonce).decode()
+            entry["aad"] = base64.b64encode(aad).decode()
+            Database["Entries"][index]= Datatosave   
+            
+            
                 
-            elif entry["count"] == count_given:
-                index = Database["Entries"].index(entry)
-                entry["ciphertext"] = base64.b64encode(encryptedpassword).decode()
-                entry["salt"] = base64.b64encode(salt).decode() 
-                entry["Nonce"] = base64.b64encode(Nonce).decode()
-                entry["aad"] = base64.b64encode(aad).decode()
-                print(Master_pass)
                 
                 
-                
-                break
+            break
                 
     
                 
         
     if not Update_Existing:
-        Datatosave["count"] = count
         Database["Entries"].append(Datatosave)
         with open("exampledata.json", "w") as f:
             json.dump(Database, f, indent=2)

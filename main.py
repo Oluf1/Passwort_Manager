@@ -9,9 +9,9 @@ class App():
         self.root = tk.Tk()
         self.root.geometry("600x400")
         with open("exampledata.json") as f:
-            Database = json.load(f)
+            self.Database = json.load(f)
         self.Existing_Services = []
-        for entry in Database["Entries"]:
+        for entry in self.Database["Entries"]:
             self.Existing_Services.append((entry["Service"],entry["Mail"],entry["count"]))
 
         self.Load_StartUI()
@@ -45,7 +45,12 @@ class App():
             Master_Password = Master_Password_Entry.get()
             Mail = Mail_Entry.get()
             Service = Service_Entry.get()
-            encrypt(Master_Password.encode(),Password.encode(),Service,Mail,0,False,)
+            count = 1
+            for entry in self.Database["Entries"]:
+                if entry["Service"] == Service and entry["Mail"]== Mail :    
+                    count+=1
+            self.Existing_Services.append(Service,Mail,count)
+            encrypt(Master_Password.encode(),Password.encode(),Service,Mail,count,False,)
 
         Update_Existing_button = tk.Button(self.root,text="Update Existing", command=self.Load_EncryptionExisitingUi)
         Encrypt_Button = tk.Button(self.root,text="Encrypt",command=Get_EntryValues)
@@ -73,8 +78,8 @@ class App():
         
         def GetEntry_values():
             index = Service_combobox.current()
-            Mail = self.Existing_Services[index][0]
-            Service = self.Existing_Services[index][1]
+            Service = self.Existing_Services[index][0]
+            Mail = self.Existing_Services[index][1]
             count = self.Existing_Services[index][2]
             password = new_Password_entry.get()
             Master_Password= Master_Password_entry.get()
@@ -102,10 +107,10 @@ class App():
         def Get_Entry_values():
             Master_pass = Master_password_Entry.get()
             index = Service_combobox.current()
-            Mail = self.Existing_Services[index][0]
-            Service = self.Existing_Services[index][1]
+            Service = self.Existing_Services[index][0]
+            Mail = self.Existing_Services[index][1]
             count = self.Existing_Services[index][2]
-        
+
             decrypt(Master_pass.encode(),Service,Mail,count)
         Decrypt_Button = tk.Button(self.root,command=Get_Entry_values,text="decrypt")
         
