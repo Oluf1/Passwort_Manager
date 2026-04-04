@@ -1,71 +1,92 @@
-import os
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import hashlib
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import hmac
 import base64
+import hashlib
+import hmac
 import json
+import os
 
-def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Update_Existing:bool):
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+
+def encrypt(
+    master_pass: bytes,
+    password: bytes,
+    service: str,
+    mail: str,
+    count: int,
+    update_existing: bool,
+):
     with open("config.json") as f:
-        config = json.load(f)  
+        config = json.load(f)
 
     key_path = config["directories"][0]
     data_path = config["directories"][1]
-    
-    Nonce = os.urandom(12)# will be saved with the password, 2 different Nonces will be generated
+
+    nonce = os.urandom(12)  # saved with the password
     try:
         with open(key_path, "r") as f:
-            key = f.read()
+            key_hex = f.read()
     except FileNotFoundError:
-        raise SystemExit("File not found change values in config.json")
-    key = bytes.fromhex(key)
+        raise SystemExit("File not found, change values in config.json")
+
+    key = bytes.fromhex(key_hex)
+
     salt = os.urandom(16)
-    aad= os.urandom(16)
-    KDFIterations = 1200000
-    
-    kdf = PBKDF2HMAC( # Will not be saved
+    aad = os.urandom(16)
+    kdf_iterations = 1_200_000
+
+    kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
-        iterations=KDFIterations,
+        iterations=kdf_iterations,
     )
-    Derived_Master = kdf.derive(Master_pass) # will not be saved
-    final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
-    aesgcm = AESGCM(final_key) # will not be saved
-    encryptedpassword = aesgcm.encrypt(Nonce,Password,aad) # will be saved
+
+    derived_master = kdf.derive(master_pass)
+
+    final_key = hmac.new(
+        key=key,
+        msg=derived_master,
+        digestmod=hashlib.sha256,
+    ).digest()
+
+    aesgcm = AESGCM(final_key)
+    encrypted_password = aesgcm.encrypt(nonce, password, aad)
 
     try:
         with open(data_path) as f:
-            Database = json.load(f)
+            database = json.load(f)
     except FileNotFoundError:
-        raise SystemExit("File not found change values in config.json")
-    
-    Datatosave = {
-                    "Service":Service,
-                    "Mail": Mail,
-                    "Nonce":base64.b64encode(Nonce).decode(),
-                    "salt":base64.b64encode(salt).decode(),
-                    "iterations":KDFIterations,
-                    "ciphertext":base64.b64encode(encryptedpassword).decode(),
-                    "aad": base64.b64encode(aad).decode(),
-                    "count":count
-                            }
-    
-    entries = Database.setdefault("Entries", [])
+        raise SystemExit("File not found, change values in config.json")
+
+    data_to_save = {
+        "Service": service,
+        "Mail": mail,
+        "Nonce": base64.b64encode(nonce).decode(),
+        "salt": base64.b64encode(salt).decode(),
+        "iterations": kdf_iterations,
+        "ciphertext": base64.b64encode(encrypted_password).decode(),
+        "aad": base64.b64encode(aad).decode(),
+        "count": count,
+    }
+
+    entries = database.setdefault("Entries", [])
     updated = False
+
     for entry in entries:
-        if (entry["count"] == count
-            and Update_Existing
-            and entry["Service"] == Service
-            and entry["Mail"] == Mail):
-            entry.update(Datatosave)
+        if (
+            entry["count"] == count
+            and update_existing
+            and entry["Service"] == service
+            and entry["Mail"] == mail
+        ):
+            entry.update(data_to_save)
             updated = True
             break
 
     if not updated:
-        entries.append(Datatosave)
-            
-    with open("exampledata.json", "w") as f:
-        json.dump(Database, f, indent=2)
+        entries.append(data_to_save)
+
+    with open(data_path, "w") as f:
+        json.dump(database, f, indent=2)
