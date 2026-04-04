@@ -10,12 +10,23 @@ import cryptography.exceptions
 
 
 def decrypt(Master_pass,Service,Mail,count):
-    key = open("examplekey.txt").read() 
+    with open("config.json") as f:
+        config = json.load(f)  
+
+    key_path = config["directories"][0]
+    data_path = config["directories"][1]
+    try:
+        with open(key_path, "r") as f:
+            key = f.read()
+    except FileNotFoundError:
+        raise SystemExit("File not found change values in config.json")
     key = bytes.fromhex(key)
-    
-    with open("exampledata.json") as f:
-        Database = json.load(f)
-    no_Matching_entries = True
+    try:
+        with open(data_path) as f:
+            Database = json.load(f)
+    except FileNotFoundError:
+        raise SystemExit("File not found change values in config.json")
+        
     for entry in Database["Entries"]:
         salt = base64.b64decode( entry["salt"])
         Nonce = base64.b64decode(entry["Nonce"])
@@ -39,17 +50,18 @@ def decrypt(Master_pass,Service,Mail,count):
             Derived_Master = kdf.derive(Master_pass)
             final_key =  hmac.new(key=key, msg=Derived_Master, digestmod=hashlib.sha256).digest() # will not be saved
             aesgcm = AESGCM(final_key)
-            no_Matching_entries = False
             try:
-                decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad)
-                print(decrypted_Password)
+                decrypted_Password = aesgcm.decrypt(Nonce,ciphertrext,aad).decode('utf-8')
+                print(F"Password: {decrypted_Password}")
                 
                 
             except cryptography.exceptions.InvalidTag:
                 print("Wrong masterpassword")   
             except Exception as error:
                 print(f"different error:{error}")
-    if no_Matching_entries == True:
+                
+            break
+    else:
         print("No Matching entry")
         
 

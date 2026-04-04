@@ -20,7 +20,7 @@ class App():
     
     def Remove_Widgets(self):
         for widget in self.root.winfo_children():
-            widget.place_forget()
+            widget.place_forget() # type: ignore
         retun_Button = tk.Button(self.root,command=self.Load_StartUI,text="return")
         retun_Button.place(x=0,y=0) 
     def Load_StartUI(self):
@@ -49,10 +49,10 @@ class App():
             for entry in self.Database["Entries"]:
                 if entry["Service"] == Service and entry["Mail"]== Mail :    
                     count+=1
-            self.Existing_Services.append(Service,Mail,count)
+            self.Existing_Services.append((Service,Mail,count))
             encrypt(Master_Password.encode(),Password.encode(),Service,Mail,count,False,)
 
-        Update_Existing_button = tk.Button(self.root,text="Update Existing", command=self.Load_EncryptionExisitingUi)
+        Update_Existing_button = tk.Button(self.root,text="Update Existing", command=self.Load_UpdateExistingUI)
         Encrypt_Button = tk.Button(self.root,text="Encrypt",command=Get_EntryValues)
         
         Update_Existing_button.place(x=275,y=250)
@@ -66,7 +66,7 @@ class App():
         Password_Label.place(x=350,y=125,height=25)
         Encrypt_Button.place(x=275,y=225,height=25)
         
-    def Load_EncryptionExisitingUi(self):
+    def Load_UpdateExistingUI(self):
         self.Remove_Widgets()
         Service_combobox = ttk.Combobox(self.root,values=self.Existing_Services)
         new_Password_entry = tk.Entry(self.root)

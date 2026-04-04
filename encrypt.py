@@ -8,9 +8,18 @@ import base64
 import json
 
 def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Update_Existing:bool):
-    Nonce = os.urandom(12)# will be saved with the password, 2 different Nonces will be generated
+    with open("config.json") as f:
+        config = json.load(f)  
 
-    key = open("examplekey.txt").read() #Will be saved on a hard drive
+    key_path = config["directories"][0]
+    data_path = config["directories"][1]
+    
+    Nonce = os.urandom(12)# will be saved with the password, 2 different Nonces will be generated
+    try:
+        with open(key_path, "r") as f:
+            key = f.read()
+    except FileNotFoundError:
+        raise SystemExit("File not found change values in config.json")
     key = bytes.fromhex(key)
     salt = os.urandom(16)
     aad= os.urandom(16)
@@ -27,12 +36,11 @@ def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Upd
     aesgcm = AESGCM(final_key) # will not be saved
     encryptedpassword = aesgcm.encrypt(Nonce,Password,aad) # will be saved
 
-
-
-
-    
-    with open("exampledata.json") as f:
-        Database = json.load(f)
+    try:
+        with open(data_path) as f:
+            Database = json.load(f)
+    except FileNotFoundError:
+        raise SystemExit("File not found change values in config.json")
     
     Datatosave = {
                     "Service":Service,
@@ -45,31 +53,20 @@ def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Upd
                     "count":count
                             }
     
-    for entry in Database["Entries"]:
+    entries = Database.setdefault("Entries", [])
+
+    updated = False
+    for entry in entries:
         if (entry["count"] == count
-                and Update_Existing
-                and entry["Service"] == Service
-                and entry["Mail"] == Mail ):
-            index = Database["Entries"].index(entry)
-            entry["ciphertext"] = base64.b64encode(encryptedpassword).decode()
-            entry["salt"] = base64.b64encode(salt).decode() 
-            entry["Nonce"] = base64.b64encode(Nonce).decode()
-            entry["aad"] = base64.b64encode(aad).decode()
-            Database["Entries"][index]= Datatosave   
-            
-            
-                
-                
-                
+            and Update_Existing
+            and entry["Service"] == Service
+            and entry["Mail"] == Mail):
+            entry.update(Datatosave)
+            updated = True
             break
-                
-    
-                
-        
-    if not Update_Existing:
-        Database["Entries"].append(Datatosave)
-        with open("exampledata.json", "w") as f:
-            json.dump(Database, f, indent=2)
-    else:
-        with open("exampledata.json", "w") as f:
-            json.dump(Database, f, indent=2)
+
+    if not updated:
+        entries.append(Datatosave)
+            
+    with open("exampledata.json", "w") as f:
+        json.dump(Database, f, indent=2)
