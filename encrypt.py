@@ -54,7 +54,6 @@ def encrypt(Master_pass:bytes,Password: bytes,Service:str,Mail:str,count:int,Upd
                             }
     
     entries = Database.setdefault("Entries", [])
-
     updated = False
     for entry in entries:
         if (entry["count"] == count

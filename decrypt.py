@@ -26,8 +26,9 @@ def decrypt(Master_pass,Service,Mail,count):
             Database = json.load(f)
     except FileNotFoundError:
         raise SystemExit("File not found change values in config.json")
-        
-    for entry in Database["Entries"]:
+    
+    entries = Database.setdefault("Entries", [])
+    for entry in entries:
         salt = base64.b64decode( entry["salt"])
         Nonce = base64.b64decode(entry["Nonce"])
         aad = base64.b64decode(entry["aad"])
