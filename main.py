@@ -1,7 +1,7 @@
 import json
 import tkinter as tk
 from tkinter import ttk
-
+import tkinter.font as tkfont
 from encrypt import encrypt
 from decrypt import decrypt
 
@@ -10,121 +10,115 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry("600x400")
+        self.vaults ={}
+        with open("config.json") as f:
+            self.vaults = json.load(f)["Vaults"]
+        #for ele in self.vaults:
+         #   self.vaults[ele]["directories"][0]
+          #  self.vaults[ele]["directories"][1]
+        #with open("exampledata.json") as f:
+        #    self.database = json.load(f)
 
-        with open("exampledata.json") as f:
-            self.database = json.load(f)
-
-        self.existing_services = [
-            (entry["Service"], entry["Mail"], entry["count"])
-            for entry in self.database["Entries"]
-        ]
-
+        #self.existing_services = [
+        #    (entry["Service"], entry["Mail"], entry["count"])
+        #    for entry in self.database["Entries"]
+        #]
+        
+        
+        border_width = 2
+        self.main_frame = ttk.Frame(self.root,borderwidth=border_width,relief="solid")
+        self.main_frame.place(relheight=1,relwidth=0.2,relx=0,rely=0)
+        self.subframe_1 = ttk.Frame(self.root,borderwidth=border_width,relief="solid")
+        self.subframe_1.place(relheight=1,relwidth=0.15,relx=0.2,rely=0)
+        self.subframe_2 = ttk.Frame(self.root,borderwidth=border_width,relief="solid")
+        self.subframe_2.place(relheight=1,relwidth=0.25,relx=0.35,rely=0)
+        self.subframe_3 = ttk.Frame(self.root,borderwidth=border_width,relief="solid")
+        self.subframe_3.place(relheight=1,relwidth=0.4,relx=0.6)
         self.load_start_ui()
         self.root.mainloop()
 
-    def remove_widgets(self):
-        for widget in self.root.winfo_children():
-            widget.place_forget()  # type: ignore
-
-        return_button = tk.Button(self.root, command=self.load_start_ui, text="Return")
-        return_button.place(x=0, y=0)
+    def fit_font(self,label: tk.Label,
+                text: str):
+        label.update_idletasks()
+        label_width = label.winfo_width()
+        max_size = 100
+        min_size= 1
+        low = min_size
+        high = max_size
+        best = min_size
+        font = tkfont.Font(family="Arial", size=1,)
+        while low <= high:
+            middle = (low + high)//2
+            font.config(size=middle)
+            text_width = font.measure(text)
+            if text_width <= label_width:
+                best = middle
+                low = middle+1
+            else:
+                high = middle-1
+        font.configure(size=best)
+        label.config(font=font,text=text)
 
     def load_start_ui(self):
-        self.remove_widgets()
-
-        encryption_button = tk.Button(self.root, text="Encryption", command=self.load_encryption_ui)
-        decryption_button = tk.Button(self.root, text="Decryption", command=self.load_decryption_ui)
-
-        encryption_button.place(x=300, y=200)
-        decryption_button.place(x=200, y=200)
-
-    def load_encryption_ui(self):
-        self.remove_widgets()
-
-        password_entry = tk.Entry(self.root)
-        master_password_entry = tk.Entry(self.root)
-        service_entry = tk.Entry(self.root)
-        mail_entry = tk.Entry(self.root)
-
-        mail_label = tk.Label(self.root, text="Email")
-        service_label = tk.Label(self.root, text="Service")
-        password_label = tk.Label(self.root, text="Password")
-        master_password_label = tk.Label(self.root, text="Master Password")
-
-        def get_entry_values():
-            password = password_entry.get()
-            master_password = master_password_entry.get()
-            mail = mail_entry.get()
-            service = service_entry.get()
-            count = 1
-
-            for entry in self.database["Entries"]:
-                if entry["Service"] == service and entry["Mail"] == mail:
-                    count += 1
-
-            self.existing_services.append((service, mail, count))
-            encrypt(master_password.encode(), password.encode(), service, mail, count, False)
-
-        update_existing_button = tk.Button(self.root, text="Update Existing", command=self.load_update_existing_ui)
-        encrypt_button = tk.Button(self.root, text="Encrypt", command=get_entry_values)
-
-        update_existing_button.place(x=275, y=250)
-        master_password_entry.place(x=250, y=175, width=100)
-        master_password_label.place(x=250, y=200, height=25)
-        mail_entry.place(x=250, y=150, width=100)
-        mail_label.place(x=250, y=125, height=25)
-        service_entry.place(x=150, y=150, width=100)
-        service_label.place(x=150, y=125, height=25)
-        password_entry.place(x=350, y=150, width=100)
-        password_label.place(x=350, y=125, height=25)
-        encrypt_button.place(x=275, y=225, height=25)
-
-    def load_update_existing_ui(self):
-        self.remove_widgets()
-
-        service_combobox = ttk.Combobox(self.root, values=self.existing_services)
-        new_password_entry = tk.Entry(self.root)
-        master_password_entry = tk.Entry(self.root)
-        new_password_label = tk.Label(self.root, text="New Password")
-        master_password_label = tk.Label(self.root, text="Master Password")
-
-        def get_entry_values():
-            index = service_combobox.current()
-            service, mail, count = self.existing_services[index]
-            password = new_password_entry.get()
-            master_password = master_password_entry.get()
-            encrypt(master_password.encode(), password.encode(), service, mail, count, True)
-
-        update_button = tk.Button(self.root, text="Update", command=get_entry_values)
-
-        update_button.place(x=250, y=225)
-        new_password_label.place(x=350, y=125)
-        new_password_entry.place(x=350, y=150)
-        master_password_label.place(x=250, y=175)
-        master_password_entry.place(x=250, y=200)
-        service_combobox.place(x=150, y=150, width=180)
-
-    def load_decryption_ui(self):
-        self.remove_widgets()
-
-        service_combobox = ttk.Combobox(self.root, values=self.existing_services)
-        master_password_entry = tk.Entry(self.root)
-        service_label = tk.Label(self.root, text="Service")
-        master_password_label = tk.Label(self.root, text="Master Password")
-
-        def get_entry_values():
-            master_password = master_password_entry.get()
-            index = service_combobox.current()
-            service, mail, count = self.existing_services[index]
-            decrypt(master_password.encode(), service, mail, count)
-
-        decrypt_button = tk.Button(self.root, command=get_entry_values, text="Decrypt")
-
-        master_password_entry.place(x=350, y=150, width=100)
-        master_password_label.place(x=350, y=125, height=25)
-        service_combobox.place(x=150, y=150, width=180)
-        service_label.place(x=150, y=125, height=25)
-        decrypt_button.place(x=275, y=175)
+        try:
+            self.root.state("zoomed")
+        except tk.TclError:
+            self.root.attributes("-zoomed", True)
+        
+        name_label = tk.Label(self.main_frame)
+        open_vaults_button = tk.Button(self.main_frame,
+                                       text="Vaults",bg="royalblue",
+                                       command=self.load_vaults)
+        name_label.place(relx=0,rely=0,relwidth=0.95)
+        config_button = tk.Button(self.main_frame,text="config",bg="lightgrey")
+        open_vaults_button.place(relx=0,rely=0.1,relwidth=1,relheight=0.1,)
+        config_button.place(relx=0,rely=0.21,relwidth=1,relheight=0.1)
+        self.root.after(10, lambda: self.fit_font(name_label, "Password Manager"))
+        
+    def load_vaults(self):
+        self.vault_buttons : list[tk.Button] = []
+        counter = 0
+        for vault in self.vaults:
+            if counter ==0:
+                new_vault_button = tk.Button(self.subframe_1,
+                                             command=self.add_vault,
+                                             text="New Vault")
+                self.vault_buttons.append(new_vault_button)
+                counter+=1
+            elif counter%20 ==0:
+                up_button = tk.Button(self.subframe_1,text="previous page",
+                                      command= lambda page = counter//18 -1: self.place_Vaults(page))
+                self.vault_buttons.append(up_button)
+                counter+=1
+            elif (counter+1) % 20 ==0 and counter/20 != len(self.vaults)/18:
+                down_button = tk.Button(self.subframe_1,text="next page",
+                                      command= lambda page = counter//18 +1: self.place_Vaults(page))
+                self.vault_buttons.append(down_button)
+                counter += 1
+            vault_button = tk.Button(self.subframe_1,command= lambda name=vault: self.open_vault(name),text=vault)
+            self.vault_buttons.append(vault_button)
+            counter +=1 
+        self.place_Vaults(0)
+        
+            
+    def place_Vaults(self,page:int):
+        self.clear_subframes(self.subframe_1)
+        if page == len(self.vaults)//18:
+            for i in range(len(self.vaults)+1):
+                button = self.vault_buttons[i+20*page]
+                button.place(rely=0.05*i,relwidth=1,relheight=0.045)
+        else:
+            for i in range(20):
+                button = self.vault_buttons[i+20*page]
+                button.place(rely=0.05*i,relwidth=1,relheight=0.045)
+    def clear_subframes(self,subframe:ttk.Frame):
+            for widget in subframe.winfo_children():
+                widget.place_forget() #type: ignore
+    def add_vault(self): 
+        pass
+    def open_vault(self,name:str):
+        print(name)
+        
 
 
 if __name__ == "__main__":
