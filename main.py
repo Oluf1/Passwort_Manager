@@ -3,7 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkfont
 from typing import Callable
-
+from tkinter import messagebox
+from pathlib import Path
 
 class App:
     def __init__(self):
@@ -92,10 +93,10 @@ class App:
         if page == 0:
             match frame:
                 case self.subframe_1:
-                    add_vault_button = tk.Button(
-                        self.subframe_1, text="Add vault", command=self.add_vault
+                    new_vault_button = tk.Button(
+                        self.subframe_1, text="Add vault", command=self.new_vault
                     )
-                    add_vault_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
+                    new_vault_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
                 case self.subframe_2:
                     add_service_button = tk.Button(
                         self.subframe_2, text="Add Service", command=self.add_service
@@ -120,7 +121,7 @@ class App:
         for widget in subframe.winfo_children():
             widget.destroy()
 
-    def add_vault(self):
+    def new_vault(self):
         new_vault_popup = tk.Toplevel(self.root)
         new_vault_popup.title("New Vault")
         new_vault_popup.configure(bg='gray74')
@@ -133,14 +134,60 @@ class App:
         y = int((screen_height - height) / 2)
         new_vault_popup.geometry(f"{width}x{height}+{x}+{y}")
         
-        vault_name_label = tk.Label(new_vault_popup,text="New vault Name")
+        tk.Label(new_vault_popup,text="New vault Name").place(relheight=0.1,relx=0,rely=0)
         vault_name_entry = tk.Entry(new_vault_popup)
-        vault_name_label.place(relheight=0.1,relx=0,rely=0)
+        
         vault_name_entry.place(relheight=0.15,relwidth=1,relx=0,rely=0.1)
         
         vault_type =tk.StringVar(value="local")
         
-        vault_type_label = tk.Label(new_vault_popup,text="vault type")
+        tk.Label(new_vault_popup,text="vault type").place(relheight=0.1,relx=0,rely=0.27)
+        tk.Radiobutton(new_vault_popup,text="Local",value="local",variable=vault_type).place(relheight=0.1,relx=0,rely=0.4)
+        tk.Radiobutton(new_vault_popup,text="server",value="server",variable=vault_type).place(relheight=0.1,relx=0.5,rely=0.4)
+        
+        def vault_config():
+            vault_name = vault_name_entry.get()
+           
+            if vault_name in self.vault_names:
+                messagebox.showerror("Error","Vault name already in use")
+                return
+            elif vault_name == "":
+                messagebox.showerror("Error","Vault Name needs to contain atleast one charracter")
+                return
+            if vault_type.get() == "server":
+                messagebox.showerror("Error","server saving is not yet supported")
+                return
+            for widget in new_vault_popup.winfo_children():
+                widget.destroy()
+            save_directory = tk.Entry(new_vault_popup)
+            key_directory = tk.Entry(new_vault_popup)
+            tk.Label(new_vault_popup,text="save directory").place(relx=0,rely=0,relheight=0.1)
+            tk.Label(new_vault_popup,text="key directory").place(relx=0.5,rely=0,relheight=0.1)
+            def add_vault():
+                path_save =Path(save_directory.get())
+                path_key = Path(key_directory.get())
+                if not path_key.exists() or not path_key.suffix == ".txt":
+                    messagebox.showerror("Error","this key path either does not exist or does not end in .txt")
+                    return
+                if not path_save.exists() or not path_save.suffix == ".json":
+                    messagebox.showerror("Error","this save path either does not exist or does not end in .txt")
+                    return
+                with open("config.json", "r") as f:
+                    data = json.load(f)
+                data["Vaults"][vault_name] = {
+                    "directories": [str(path_key), str(path_save)],
+                    "type": "local"
+                }
+
+                with open("config.json", "w") as f:
+                    json.dump(data, f, indent=2)
+            save_directory.place(relx=0,relwidth=0.45,rely=0.1)     
+            key_directory.place(relx=0.5,rely=0.1,relwidth=0.5)
+            tk.Button(new_vault_popup,text="add vault",command=add_vault).place(relx=0.5,rely=0.5)
+            
+        
+        tk.Button(new_vault_popup,text="next",command=vault_config).place(relheight=0.1,rely=0.5,relx=0)
+        
         
         new_vault_popup.transient(self.root)
         new_vault_popup.grab_set
