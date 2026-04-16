@@ -5,7 +5,7 @@ import tkinter.font as tkfont
 from typing import Callable
 from tkinter import messagebox
 from pathlib import Path
-
+from tkinter import filedialog
 class App:
     def __init__(self):
         self.root = tk.Tk()
@@ -145,48 +145,42 @@ class App:
         tk.Radiobutton(new_vault_popup,text="Local",value="local",variable=vault_type).place(relheight=0.1,relx=0,rely=0.4)
         tk.Radiobutton(new_vault_popup,text="server",value="server",variable=vault_type).place(relheight=0.1,relx=0.5,rely=0.4)
         
-        def vault_config():
-            vault_name = vault_name_entry.get()
-           
-            if vault_name in self.vault_names:
-                messagebox.showerror("Error","Vault name already in use")
-                return
-            elif vault_name == "":
-                messagebox.showerror("Error","Vault Name needs to contain atleast one charracter")
-                return
+        def add_vault():
             if vault_type.get() == "server":
-                messagebox.showerror("Error","server saving is not yet supported")
+                messagebox.showerror("Error","Server saving not yet implemented")
                 return
-            for widget in new_vault_popup.winfo_children():
-                widget.destroy()
-            save_directory = tk.Entry(new_vault_popup)
-            key_directory = tk.Entry(new_vault_popup)
-            tk.Label(new_vault_popup,text="save directory").place(relx=0,rely=0,relheight=0.1)
-            tk.Label(new_vault_popup,text="key directory").place(relx=0.5,rely=0,relheight=0.1)
-            def add_vault():
-                path_save =Path(save_directory.get())
-                path_key = Path(key_directory.get())
-                if not path_key.exists() or not path_key.suffix == ".txt":
-                    messagebox.showerror("Error","this key path either does not exist or does not end in .txt")
-                    return
-                if not path_save.exists() or not path_save.suffix == ".json":
-                    messagebox.showerror("Error","this save path either does not exist or does not end in .txt")
-                    return
-                with open("config.json", "r") as f:
-                    data = json.load(f)
-                data["Vaults"][vault_name] = {
-                    "directories": [str(path_key), str(path_save)],
-                    "type": "local"
-                }
-
-                with open("config.json", "w") as f:
-                    json.dump(data, f, indent=2)
-            save_directory.place(relx=0,relwidth=0.45,rely=0.1)     
-            key_directory.place(relx=0.5,rely=0.1,relwidth=0.5)
-            tk.Button(new_vault_popup,text="add vault",command=add_vault).place(relx=0.5,rely=0.5)
+            vault_name = vault_name_entry.get()
+            if vault_name in self.vault_names:
+                messagebox.showerror("Error","Vault name already exists choose another")
+                return
+            save_dir = filedialog.askopenfilename(initialdir="/",
+                                                 title="select save directory",
+                                                 filetypes = (("json files",
+                                                        "*.json*"),))
+            key_dir = filedialog.askopenfilename(initialdir="/",
+                                                 title="select key directory",
+                                                 filetypes = (("Text files",
+                                                        "*.txt*"),))
+            if not save_dir or not key_dir:
+                messagebox.showerror("Error", "No directory selected")
+                return
+            with open("config.json")as config:
+                data = json.load(config)
+            data["Vaults"][vault_name] = {"directories":
+                                    [
+                                        key_dir,
+                                        save_dir
+                                    ],
+                                    "type":"local"
+                                }
+            with open("config.json", "w") as file:
+                json.dump(data,file,indent=2)
             
+            new_vault_popup.destroy()
+            self.vault_names.append(vault_name)
+            self.load_vaults(0)
         
-        tk.Button(new_vault_popup,text="next",command=vault_config).place(relheight=0.1,rely=0.5,relx=0)
+        tk.Button(new_vault_popup,text="choose locations",command=add_vault).place(relheight=0.1,rely=0.5,relx=0)
         
         
         new_vault_popup.transient(self.root)
