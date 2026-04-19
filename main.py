@@ -4,7 +4,6 @@ from tkinter import ttk
 import tkinter.font as tkfont
 from typing import Callable
 from tkinter import messagebox
-from pathlib import Path
 from tkinter import filedialog
 class App:
     def __init__(self):
@@ -81,6 +80,7 @@ class App:
         self.root.after(10, lambda: self.fit_font(name_label, "Password Manager"))
 
     def load_vaults(self, page: int):
+        self.selected_vault =""
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault)
 
     def render_pages(
@@ -103,7 +103,10 @@ class App:
                     )
                     add_service_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
                 case self.subframe_3:
-                    pass
+                    add_mail_button = tk.Button(
+                        self.subframe_3,text="add Mail",command=self.add_mail
+                    )
+                    add_mail_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
                 case _:
                     print("error wrong subframe in render_pages")
         else:
@@ -189,24 +192,90 @@ class App:
     def open_vault(self, name: str):
         self.selected_vault = name
         self.clear_subframes(self.subframe_2)
+
         vault = self.vaults[name]
         services: list[str] = []
+
         if vault["type"] == "local":
             location = vault["directories"][1]
+
             with open(location) as f:
-                Entries = json.load(f)["Entries"]
-                for entry in Entries:
-                    services.append(entry["Service"])
+                data = json.load(f)
+
+                services = list(data["services"].keys())
 
         elif vault["type"] == "server":
             print("not yet implemented")
         else:
             print(f"{vault['type']} is not a valid save type.")
-        self.render_pages(0,services,self.subframe_2,self.open_service)
+
+        self.render_pages(0, services, self.subframe_2, self.open_service)
+
     def add_service(self):
+        new_service_popup = tk.Toplevel(self.root,)
+        screen_width = new_service_popup.winfo_screenwidth()
+        screen_height = new_service_popup.winfo_screenheight()
+        
+        width = int(screen_width * 0.5)
+        height = int(screen_height * 0.5)
+        x = int((screen_width - width) / 2)
+        y = int((screen_height - height) / 2)
+        new_service_popup.geometry(f"{width}x{height}+{x}+{y}")
+        
+        name_entry = tk.Entry(new_service_popup)
+        name_entry.place(relheight=0.1,relx=0,rely=0.1)
+        tk.Label(new_service_popup,text="Name").place(relheight=0.1,relx=0,rely=0)
+        
+        def create_service():
+            new_name = name_entry.get()
+            
+            services: list[str] = []
+            vault = self.vaults[self.selected_vault]
+            if vault["type"] == "local":
+                location = vault["directories"][1]
+                with open(location) as f:
+                    data = json.load(f)
+
+                    services = list(data["services"].keys())
+                if new_name in services:
+                    messagebox.showerror("Error", "Service already exists")
+                    return
+                new_service_popup.destroy()
+                data["services"][new_name] = []
+                with open(location,"w") as file:
+                    json.dump(data,file,indent=2) 
+                self.open_vault(self.selected_vault)
+
+        
+        tk.Button(new_service_popup,command=create_service,
+                  text="create service").place(relheight=0.1,rely=0.3,relx=0)
+        
+        
+        
+        new_service_popup.transient(self.root)
+        new_service_popup.grab_set
+        
+    def open_service(self,name:str):
+        self.selected_service = name
+        self.clear_subframes(self.subframe_3)
+
+        vault = self.vaults[self.selected_vault]
+        Mails = []
+        if vault["type"] == "local":
+            location = vault["directories"][1]
+            with open(location) as f:
+                data = json.load(f)
+            
+            
+            for ele in data["services"][name]:
+                Mails.append(ele["Mail"])
+            self.render_pages(0,Mails,self.subframe_3,self.open_mail)
+    def open_mail(self,name:str):
         pass
-    def open_service(self,name:int):
+    def add_mail(self):
         pass
+            
+            
 
 if __name__ == "__main__":
     App()

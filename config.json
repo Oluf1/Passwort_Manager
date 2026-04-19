@@ -5,7 +5,7 @@
         "examplekey.txt",
         "exampledata.json"
       ],
-      "type":"local"
+      "type": "local"
     }
   }
 }
