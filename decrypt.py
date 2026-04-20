@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
-def decrypt(master_pass: bytes, service: str, mail: str, count: int):
+def decrypt(master_pass: bytes, service: str, mail: str, count: int)-> str:
     with open("config.json") as f:
         config = json.load(f)
 
@@ -72,14 +72,19 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int):
                     aad,
                 ).decode("utf-8")
 
-                print(f"Password: {decrypted_password}")
+                return decrypted_password
 
             except cryptography.exceptions.InvalidTag:
+                
                 print("Wrong master password")
+                return "Wrong master password"
 
             except Exception as error:
                 print(f"Different error: {error}")
+                return f"Different error: {error}"
 
             break
     else:
+        
         print("No matching entry")
+        return "No matching entry"

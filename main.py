@@ -89,6 +89,7 @@ class App:
         self.clear_subframes(frame)
         start = page * self.items_per_page
         end = start + self.items_per_page
+        btn_size = 1/ (self.items_per_page +2)
         current_items = items[start:end]
         if page == 0:
             match frame:
@@ -96,29 +97,37 @@ class App:
                     new_vault_button = tk.Button(
                         self.subframe_1, text="Add vault", command=self.new_vault
                     )
-                    new_vault_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
+                    new_vault_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
                 case self.subframe_2:
                     add_service_button = tk.Button(
                         self.subframe_2, text="Add Service", command=self.add_service
                     )
-                    add_service_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
+                    add_service_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
                 case self.subframe_3:
                     add_mail_button = tk.Button(
                         self.subframe_3,text="add Mail",command=self.add_mail
                     )
-                    add_mail_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
+                    add_mail_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
                 case _:
                     print("error wrong subframe in render_pages")
         else:
             up_button = tk.Button(
                 frame,
                 text="page up",
-                command=lambda: self.render_pages(page - 1, items, frame, function),
+                command=lambda new_page = page-1: self.render_pages(new_page, items, frame, function),
             )
-            up_button.place(relx=0, rely=0, relwidth=1, relheight=0.05)
+            up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
         for i, name in enumerate(current_items):
-            button = tk.Button(frame, text=name, command=lambda: function(name))
-            button.place(relheight=0.05, relx=0, relwidth=1, rely=0.05 + 0.05 * i)
+            button = tk.Button(frame, text=name, command=lambda temp_name = name: function(temp_name))
+            button.place(relheight=0.05, relx=0, relwidth=1, rely=btn_size + btn_size * i)
+        if len(current_items )> len(items):
+            down_button = tk.Button(
+                frame,
+                text="page down",
+                command=lambda new_page = page+1: self.render_pages(new_page,items,frame,function)
+            )
+            down_button.place(relx=0,relheight=btn_size,rely=1-btn_size,relwidth=1)
+
 
     def clear_subframes(self, subframe: ttk.Frame):
         for widget in subframe.winfo_children():
@@ -128,14 +137,7 @@ class App:
         new_vault_popup = tk.Toplevel(self.root)
         new_vault_popup.title("New Vault")
         new_vault_popup.configure(bg='gray74')
-        screen_width = new_vault_popup.winfo_screenwidth()
-        screen_height = new_vault_popup.winfo_screenheight()
-        
-        width = int(screen_width * 0.5)
-        height = int(screen_height * 0.5)
-        x = int((screen_width - width) / 2)
-        y = int((screen_height - height) / 2)
-        new_vault_popup.geometry(f"{width}x{height}+{x}+{y}")
+        self.scale_toplevel(new_vault_popup,0.5)
         
         tk.Label(new_vault_popup,text="New vault Name").place(relheight=0.1,relx=0,rely=0)
         vault_name_entry = tk.Entry(new_vault_popup)
@@ -203,6 +205,7 @@ class App:
                 data = json.load(f)
 
                 services = list(data["services"].keys())
+                
 
         elif vault["type"] == "server":
             print("not yet implemented")
@@ -213,14 +216,7 @@ class App:
 
     def add_service(self):
         new_service_popup = tk.Toplevel(self.root,)
-        screen_width = new_service_popup.winfo_screenwidth()
-        screen_height = new_service_popup.winfo_screenheight()
-        
-        width = int(screen_width * 0.5)
-        height = int(screen_height * 0.5)
-        x = int((screen_width - width) / 2)
-        y = int((screen_height - height) / 2)
-        new_service_popup.geometry(f"{width}x{height}+{x}+{y}")
+        self.scale_toplevel(new_service_popup,0.5)
         
         name_entry = tk.Entry(new_service_popup)
         name_entry.place(relheight=0.1,relx=0,rely=0.1)
@@ -257,10 +253,11 @@ class App:
         
     def open_service(self,name:str):
         self.selected_service = name
+        
         self.clear_subframes(self.subframe_3)
 
         vault = self.vaults[self.selected_vault]
-        Mails = []
+        Mails:list[str] = []
         if vault["type"] == "local":
             location = vault["directories"][1]
             with open(location) as f:
@@ -270,8 +267,31 @@ class App:
             for ele in data["services"][name]:
                 Mails.append(ele["Mail"])
             self.render_pages(0,Mails,self.subframe_3,self.open_mail)
+        
     def open_mail(self,name:str):
-        pass
+        mail_popup = tk.Toplevel(self.root)
+        
+        
+        self.scale_toplevel(mail_popup,0.5)
+        mail_popup.title(name)
+        
+        tk.Label(mail_popup,
+                 text=f"service: {self.selected_service}"
+                 ).place(relx=0,rely=0,relheight=0.15)
+        password_Label =tk.Label(mail_popup,text="password: ****")
+        password_Label.place(relx=0,relheight=0.15,rely=0.15)
+        tk.Button(mail_popup,text="decrypt Password").place(relx=0.3,rely=0.15,relheight=0.15)
+        
+        mail_popup.transient(self.root)
+        mail_popup.grab_set
+    def scale_toplevel(self,window:tk.Toplevel,size:float):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        width = int(screen_width * size)
+        height = int(screen_height * size)
+        x = int((screen_width - width) *size)
+        y = int((screen_height - height) *size)
+        window.geometry(f"{width}x{height}+{x}+{y}")
     def add_mail(self):
         pass
             
