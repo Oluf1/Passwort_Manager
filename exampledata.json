@@ -1,64 +1,70 @@
 {
-  "Entries": [
-    {
-      "Service": "examples",
-      "Mail": "examples",
-      "Nonce": "JW8ck0m2oq+AS7SW",
-      "salt": "OxDRCEM1gy3UY6NJBhZdPQ==",
-      "iterations": 1200000,
-      "ciphertext": "juM4cQlR/2b5BpgM4MUGYjEtbS3SpTOtjA==",
-      "aad": "y8Z2SQhoDZcW5TsqfcUyIw==",
-      "count": 1
-    },
-    {
-      "Service": "examples",
-      "Mail": "example",
-      "Nonce": "tI8wPGYzFASwqYHJ",
-      "salt": "bV6mrqRgjSjBv/NOtM6kjg==",
-      "iterations": 1200000,
-      "ciphertext": "6uaYoZ2r9Ip//PLBKN3haCMZEuHDcLyFkCs=",
-      "aad": "Vb4nptuaSvcWkWTstOTt3Q==",
-      "count": 1
-    },
-    {
-      "Service": "example",
-      "Mail": "example",
-      "Nonce": "oCvwdmSEpQgWRl8H",
-      "salt": "eNGC3Ze3v8OIOCB0HvuE8Q==",
-      "iterations": 1200000,
-      "ciphertext": "LI6CnoA1WWFRkk32gOwXqCbxgnDt",
-      "aad": "w7FGrzUzj9nGXdNCps2PRg==",
-      "count": 1
-    },
-    {
-      "Service": "example",
-      "Mail": "example",
-      "Nonce": "szyhlzWimkO3Whuo",
-      "salt": "LJSeFSIFUPbx4lHyMA+/AQ==",
-      "iterations": 1200000,
-      "ciphertext": "kY4cq9KPz7exZlyKLtn8gT34IOSPtbHXkFkKrLfQ",
-      "aad": "PpMfuSZBqKbBFutrmyCyDw==",
-      "count": 2
-    },
-    {
-      "Service": "example22",
-      "Mail": "example22@gmail.com",
-      "Nonce": "13VFwoJVjPojJ8R+",
-      "salt": "5BrpUd+pW2sgwrNsM5cZHQ==",
-      "iterations": 1200000,
-      "ciphertext": "/l1rY7weytU662phlypdH1Fcijk/AJk=",
-      "aad": "LUGhnXxE5CNEAo9Upgk56w==",
-      "count": 1
-    },
-    {
-      "Service": "example",
-      "Mail": "example",
-      "Nonce": "9voUinx5sA7JXHyx",
-      "salt": "B2yP5328WGnsocH6U+MfPw==",
-      "iterations": 1200000,
-      "ciphertext": "ciXs1FKE8kFddH693UQxmJB+v3DuWuk=",
-      "aad": "9VYbh6P9Qa0qVvJSnPdzZQ==",
-      "count": 3
-    }
-  ]
+  "services": {
+    "examples": [
+      {
+        "Service": "examples",
+        "Mail": "examples",
+        "Nonce": "JW8ck0m2oq+AS7SW",
+        "salt": "OxDRCEM1gy3UY6NJBhZdPQ==",
+        "iterations": 1200000,
+        "ciphertext": "juM4cQlR/2b5BpgM4MUGYjEtbS3SpTOtjA==",
+        "aad": "y8Z2SQhoDZcW5TsqfcUyIw==",
+        "count": 1
+      },
+      {
+        "Service": "examples",
+        "Mail": "example",
+        "Nonce": "tI8wPGYzFASwqYHJ",
+        "salt": "bV6mrqRgjSjBv/NOtM6kjg==",
+        "iterations": 1200000,
+        "ciphertext": "6uaYoZ2r9Ip//PLBKN3haCMZEuHDcLyFkCs=",
+        "aad": "Vb4nptuaSvcWkWTstOTt3Q==",
+        "count": 1
+      }
+    ],
+    "example": [
+      {
+        "Service": "example",
+        "Mail": "example",
+        "Nonce": "oCvwdmSEpQgWRl8H",
+        "salt": "eNGC3Ze3v8OIOCB0HvuE8Q==",
+        "iterations": 1200000,
+        "ciphertext": "LI6CnoA1WWFRkk32gOwXqCbxgnDt",
+        "aad": "w7FGrzUzj9nGXdNCps2PRg==",
+        "count": 1
+      },
+      {
+        "Service": "example",
+        "Mail": "example",
+        "Nonce": "szyhlzWimkO3Whuo",
+        "salt": "LJSeFSIFUPbx4lHyMA+/AQ==",
+        "iterations": 1200000,
+        "ciphertext": "kY4cq9KPz7exZlyKLtn8gT34IOSPtbHXkFkKrLfQ",
+        "aad": "PpMfuSZBqKbBFutrmyCyDw==",
+        "count": 2
+      },
+      {
+        "Service": "example",
+        "Mail": "example",
+        "Nonce": "9voUinx5sA7JXHyx",
+        "salt": "B2yP5328WGnsocH6U+MfPw==",
+        "iterations": 1200000,
+        "ciphertext": "ciXs1FKE8kFddH693UQxmJB+v3DuWuk=",
+        "aad": "9VYbh6P9Qa0qVvJSnPdzZQ==",
+        "count": 3
+      }
+    ],
+    "example22": [
+      {
+        "Service": "example22",
+        "Mail": "example22@gmail.com",
+        "Nonce": "13VFwoJVjPojJ8R+",
+        "salt": "5BrpUd+pW2sgwrNsM5cZHQ==",
+        "iterations": 1200000,
+        "ciphertext": "/l1rY7weytU662phlypdH1Fcijk/AJk=",
+        "aad": "LUGhnXxE5CNEAo9Upgk56w==",
+        "count": 1
+      }
+    ]
+  }
 }
