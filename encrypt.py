@@ -17,6 +17,7 @@ def encrypt(
     mail: str,
     count: int,
     update_existing: bool,
+    new_mail:str
 ):
     with open("config.json") as f:
         config = json.load(f)["Vaults"][vault]
@@ -72,13 +73,29 @@ def encrypt(
         "count": count,
     }
 
+    
     if not update_existing:
+        for ele in database["services"][service]:
+            if ele["Mail"] == mail:
+                count+=1 
+        
+        data_to_save["count"] = count        
+        
         database["services"].setdefault(service,[])
         database["services"][service].append(data_to_save)
     else:
+        data_to_save["Mail"] = new_mail
+        if mail != new_mail:
+            count = 1
+            for entry in database["services"][service]:
+                if entry["Mail"] == new_mail:
+                    count +=1 
+            data_to_save["count"] = count
+        
         for entry in database["services"][service]:
             if entry["Mail"] == mail and entry["count"]== count:
-                database["services"][service] = entry
+                data_to_save["Mail"] = new_mail
+                database["services"][service][entry] = data_to_save
                 break
         else:
             print("error no matching entry found")

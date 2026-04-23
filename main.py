@@ -328,7 +328,59 @@ class App:
         tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
             relx=0.3, rely=0.15, relheight=0.15
         )
+        def update_password():
+            new_data_popup = tk.Toplevel(self.root)
+            self.scale_toplevel(new_data_popup,0.3)
+            mail = name[0]
+            new_name_entry = tk.Entry(new_data_popup)
+            new_name_entry.insert(0,mail)
+            new_name_entry.place(relx=0,relheight=0.1,rely=0.1,relwidth=1)
+            tk.Label(
+                new_data_popup,
+                text="new_mail"
+                ).place(relx=0,rely=0,relheight=0.1)
+            new_password_entry = tk.Entry(new_data_popup)
+            tk.Label(
+                new_data_popup,
+                text="new Password"
+            ).place(relx=0,relheight=0.1,rely=0.2)
+            new_password_entry.place(relx=0,relheight=0.1,rely=0.3,relwidth=1)
+            
+            new_master_entry = tk.Entry(new_data_popup)
+            tk.Label(new_data_popup,text="new Master password").place(relx=0,relheight=0.1,rely=0.4)
+            new_master_entry.place(relx=0,rely=0.5,relheight=0.1,relwidth=1)
+            
+            def call_encryption():
+                new_master = new_master_entry.get()
+                new_name = new_name_entry.get()
+                new_password = new_password_entry.get()
+                
+                if not new_master or not new_name or not new_password:
+                    messagebox.showerror("Error","No field can be left empty")
+                    return
+                encrypt(
+                    new_master.encode(),
+                    new_password.encode(),
+                    self.selected_service,
+                    self.selected_vault,
+                    name[0],
+                    int(name[1]),
+                    True,
+                    new_name)
+                new_data_popup.destroy()
 
+            tk.Button(new_data_popup,command=call_encryption,text="continue").place(relx=0,rely=0.6,relheight=0.1)
+            
+            
+            new_data_popup.transient(self.root)
+            new_data_popup.grab_set
+        
+        tk.Button(mail_popup, text="change Password",
+                  command=update_password).place(
+                      relx=0.6,rely=0.15,relheight=0.15
+                  )
+
+        
         mail_popup.transient(self.root)
         mail_popup.grab_set
 
@@ -354,7 +406,7 @@ class App:
             vault = self.selected_vault
             password = password_entry.get()
             master = master_password_entry.get()
-            encrypt(master.encode(),password.encode(),service,vault,name,1,False)
+            encrypt(master.encode(),password.encode(),service,vault,name,1,False,name)
             add_mail_popup.destroy()
             self.open_service(self.selected_service)
             
@@ -370,8 +422,8 @@ class App:
         screen_height = window.winfo_screenheight()
         width = int(screen_width * size)
         height = int(screen_height * size)
-        x = int((screen_width - width) * size)
-        y = int((screen_height - height) * size)
+        x = int((screen_width - width) * 0.5)
+        y = int((screen_height - height) * 0.5)
         window.geometry(f"{width}x{height}+{x}+{y}")
 
 
