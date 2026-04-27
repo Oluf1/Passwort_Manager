@@ -23,7 +23,7 @@ class App:
         self.selected_service = ""
         with open("config.json") as file:
             config = json.load(file)["config"]
-            self.items_per_page =  config[self.items_per_page] # will be in config later
+            self.items_per_page =  config["items per frame"] 
         border_width = 2
         self.main_frame = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
