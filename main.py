@@ -21,7 +21,9 @@ class App:
             self.vault_names.append(name)
         self.selected_vault = ""
         self.selected_service = ""
-        self.items_per_page = 18  # will be in config later
+        with open("config.json") as file:
+            config = json.load(file)["config"]
+            self.items_per_page =  config[self.items_per_page] # will be in config later
         border_width = 2
         self.main_frame = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
@@ -31,6 +33,8 @@ class App:
         self.subframe_2.place(relheight=1, relwidth=0.25, relx=0.35, rely=0)
         self.subframe_3 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
+        
+        self.subframe_list = [self.subframe_1,self.subframe_2,self.subframe_3]
         self.load_start_ui()
         self.root.mainloop()
 
@@ -72,7 +76,7 @@ class App:
             command=lambda: self.load_vaults(0),
         )
         name_label.place(relx=0, rely=0, relwidth=0.95)
-        config_button = tk.Button(self.main_frame, text="config", bg="lightgrey")
+        config_button = tk.Button(self.main_frame, text="config", bg="lightgrey",command= self.Load_config)
         open_vaults_button.place(
             relx=0,
             rely=0.1,
@@ -82,6 +86,10 @@ class App:
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
         self.root.after(10, lambda: self.fit_font(name_label, "Password Manager"))
 
+    def Load_config(self):
+        self.clear_subframes(self.subframe_1)
+        
+        
     def load_vaults(self, page: int):
         self.selected_vault = ""
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault)
@@ -146,8 +154,10 @@ class App:
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
 
     def clear_subframes(self, subframe: ttk.Frame):
-        for widget in subframe.winfo_children():
-            widget.destroy()
+        index = self.subframe_list.index(subframe)
+        for frame in self.subframe_list[index:-1]:
+            for widget in frame.winfo_children():
+                widget.destroy()
 
     def new_vault(self):
         new_vault_popup = tk.Toplevel(self.root)
@@ -212,6 +222,11 @@ class App:
             with open(save_dir,"w") as file:
                 json.dump(save,file,indent=2)
             new_vault_popup.destroy()
+            self.vaults[vault_name] = {
+                "directories":[key_dir,save_dir],
+                "type":"local"
+                
+            }
             self.vault_names.append(vault_name)
             self.load_vaults(0)
 
