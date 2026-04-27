@@ -24,7 +24,10 @@ class App:
         with open("config.json") as file:
             config = json.load(file)["config"]
             self.items_per_page =  config["items per frame"] 
+            self.font = config["font"]
         border_width = 2
+        
+        
         self.main_frame = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
         self.subframe_1 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
@@ -34,34 +37,49 @@ class App:
         self.subframe_3 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
         
+        
         self.subframe_list = [self.subframe_1,self.subframe_2,self.subframe_3]
         self.load_start_ui()
         self.root.mainloop()
 
-    def fit_font(self, label: tk.Label, text: str):
-        label.update_idletasks()
-        label_width = label.winfo_width()
-        max_size = 100
-        min_size = 1
-        low = min_size
-        high = max_size
-        best = min_size
-        font = tkfont.Font(
-            family="Arial",
-            size=1,
-        )
-        while low <= high:
-            middle = (low + high) // 2
-            font.config(size=middle)
-            text_width = font.measure(text)
-            if text_width <= label_width:
-                best = middle
-                low = middle + 1
-            else:
-                high = middle - 1
-        font.configure(size=best)
-        label.config(font=font, text=text)
+    def fit_font(self, widget, text: str):
+        try:
+            widget.update_idletasks()
+            widget_width = widget.winfo_width()
+            widget_height = widget.winfo_height()
 
+            max_size = 100
+            min_size = 1
+            low = min_size
+            high = max_size
+            best = min_size
+
+            font = tkfont.Font(family=self.font, size=1)
+
+            while low <= high:
+                middle = (low + high) // 2
+                font.config(size=middle)
+                text_width = font.measure(text)
+                text_height = font.metrics("linespace")
+                usable_width = widget_width *0.8
+                
+                if text_width <= usable_width and text_height <= widget_height:
+                    best = middle
+                    low = middle + 1
+                else:
+                    high = middle - 1
+
+            font.configure(size=best)
+
+            if "text" in widget.keys():
+                widget.config(font=font, text=text)
+
+        except Exception as e:
+            print("Error in fit_font:", e)
+    def apply_fonts(self, parent):
+        for widget in parent.winfo_children():
+            if "text" in widget.keys():
+                self.fit_font(widget, widget["text"])
     def load_start_ui(self):
         try:
             self.root.state("zoomed")
@@ -111,6 +129,7 @@ class App:
                     new_vault_button.place(
                         relx=0, rely=0, relwidth=1, relheight=btn_size
                     )
+                    self.fit_font(new_vault_button,text="Add vault")
                 case self.subframe_2:
                     add_service_button = tk.Button(
                         self.subframe_2, text="Add Service", command=self.add_service
@@ -118,6 +137,7 @@ class App:
                     add_service_button.place(
                         relx=0, rely=0, relwidth=1, relheight=btn_size
                     )
+                    self.fit_font(add_service_button,"Add Service")
                 case self.subframe_3:
                     add_mail_button = tk.Button(
                         self.subframe_3, text="add Mail", command=self.add_mail
@@ -125,6 +145,7 @@ class App:
                     add_mail_button.place(
                         relx=0, rely=0, relwidth=1, relheight=btn_size
                     )
+                    self.fit_font(add_mail_button,"add Mail")
                 case _:
                     print("error wrong subframe in render_pages")
         else:
@@ -136,14 +157,21 @@ class App:
                 ),
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
+            self.fit_font(up_button,"page up")
+        
         for i, item in enumerate(current_items):
+            if frame == self.subframe_3:
+                text_name = f"{item[0]} {str(item[1])}"
+            else:
+                text_name = item
             button = tk.Button(
-                frame, text=str(item), command=lambda it=item: function(it)
+                frame, text=str(text_name), command=lambda it=item: function(it)
             )
             button.place(
                 relheight=0.05, relx=0, relwidth=1, rely=btn_size + btn_size * i
             )
-        if len(current_items) > len(items):
+            self.fit_font(button,text_name)
+        if page * len(current_items) > len(items):
             down_button = tk.Button(
                 frame,
                 text="page down",
@@ -152,6 +180,7 @@ class App:
                 ),
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
+            self.fit_font(down_button,"page down")
 
     def clear_subframes(self, subframe: ttk.Frame):
         index = self.subframe_list.index(subframe)
@@ -166,7 +195,7 @@ class App:
         self.scale_toplevel(new_vault_popup, 0.5)
 
         tk.Label(new_vault_popup, text="New vault Name").place(
-            relheight=0.1, relx=0, rely=0
+            relheight=0.1, relx=0, rely=0,relwidth=0.4
         )
         vault_name_entry = tk.Entry(new_vault_popup)
 
@@ -175,14 +204,14 @@ class App:
         vault_type = tk.StringVar(value="local")
 
         tk.Label(new_vault_popup, text="vault type").place(
-            relheight=0.1, relx=0, rely=0.27
+            relheight=0.1, relx=0, rely=0.27,relwidth=0.4
         )
         tk.Radiobutton(
             new_vault_popup, text="Local", value="local", variable=vault_type
-        ).place(relheight=0.1, relx=0, rely=0.4)
+        ).place(relheight=0.1, relx=0, rely=0.4,relwidth=0.4)
         tk.Radiobutton(
             new_vault_popup, text="server", value="server", variable=vault_type
-        ).place(relheight=0.1, relx=0.5, rely=0.4)
+        ).place(relheight=0.1, relx=0.5, rely=0.4,relwidth=0.4)
 
         def add_vault():
             if vault_type.get() == "server":
@@ -231,9 +260,9 @@ class App:
             self.load_vaults(0)
 
         tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
-            relheight=0.1, rely=0.5, relx=0
+            relheight=0.1, rely=0.5, relx=0,relwidth=0.3
         )
-
+        new_vault_popup.after(10,self.apply_fonts,new_vault_popup)
         new_vault_popup.transient(self.root)
         new_vault_popup.grab_set
 
@@ -259,6 +288,7 @@ class App:
 
         self.render_pages(0, services, self.subframe_2, self.open_service)
 
+    
     def add_service(self):
         new_service_popup = tk.Toplevel(
             self.root,
@@ -266,8 +296,8 @@ class App:
         self.scale_toplevel(new_service_popup, 0.5)
 
         name_entry = tk.Entry(new_service_popup)
-        name_entry.place(relheight=0.1, relx=0, rely=0.1)
-        tk.Label(new_service_popup, text="Name").place(relheight=0.1, relx=0, rely=0)
+        name_entry.place(relheight=0.1, relx=0, rely=0.1,relwidth=1)
+        tk.Label(new_service_popup, text="Name").place(relheight=0.1, relx=0, rely=0,relwidth=0.5)
 
         def create_service():
             new_name = name_entry.get()
@@ -291,8 +321,9 @@ class App:
 
         tk.Button(
             new_service_popup, command=create_service, text="create service"
-        ).place(relheight=0.1, rely=0.3, relx=0)
-
+        ).place(relheight=0.1, rely=0.3, relx=0,relwidth=0.5)
+        
+        new_service_popup.after(10,self.apply_fonts,new_service_popup)
         new_service_popup.transient(self.root)
         new_service_popup.grab_set
 
@@ -405,15 +436,15 @@ class App:
         
         name_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup,text="Email").place(relx=0,rely=0,relheight=0.15)
-        name_entry.place(relheight=0.15,relx=0,rely=0.15)
+        name_entry.place(relheight=0.15,relx=0,rely=0.15,relwidth=0.4)
         
         password_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup,text="Password").place(relx=0,relheight=0.15,rely=0.3)
-        password_entry.place(relx=0,rely=0.45,relheight=0.15)
+        password_entry.place(relx=0,rely=0.45,relheight=0.15,relwidth=1)
         
         master_password_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup,text="Masterpassword").place(relx=0,rely=0.6,relheight=0.1)
-        master_password_entry.place(relx=0,rely=0.7,relheight=0.1)
+        master_password_entry.place(relx=0,rely=0.7,relheight=0.1,relwidth=1)
         
         def add_entry():
             name= name_entry.get()
@@ -427,8 +458,7 @@ class App:
             
                     
         tk.Button(add_mail_popup,text="add",command=add_entry).place(relx=0,rely=0.8,relheight=0.1)
-        
-        
+        add_mail_popup.after(10,self.apply_fonts,add_mail_popup)
         add_mail_popup.transient(self.root)
         add_mail_popup.grab_set
 

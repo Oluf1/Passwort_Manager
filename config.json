@@ -9,7 +9,8 @@
     }
   },
   "config": {
-  "items per frame":18
+  "items per frame":18,
+  "font":"Arial"
   
   }
 }
