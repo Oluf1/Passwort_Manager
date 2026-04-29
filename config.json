@@ -1,16 +1,16 @@
 {
-  "Vaults": {
-    "Vault1": {
-      "directories": [
-        "examplekey.txt",
-        "exampledata.json"
-      ],
-      "type": "local"
+    "Vaults": {
+        "Vault1": {
+            "directories": [
+                "examplekey.txt",
+                "exampledata.json"
+            ],
+            "type": "local"
+        }
+    },
+    "config": {
+        "items_per_page": 3,
+        "font_family": "Arial"
     }
-  },
-  "config": {
   "items per frame":18,
-  "font":"Arial"
-  
-  }
 }

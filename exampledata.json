@@ -20,6 +20,26 @@
         "ciphertext": "6uaYoZ2r9Ip//PLBKN3haCMZEuHDcLyFkCs=",
         "aad": "Vb4nptuaSvcWkWTstOTt3Q==",
         "count": 1
+      },
+      {
+        "Service": "examples",
+        "Mail": "beispiel",
+        "Nonce": "rdNUc7Bfcr7mKM6O",
+        "salt": "c/uiYKrBo4xKsmflCV6XXw==",
+        "iterations": 1200000,
+        "ciphertext": "/rHPpyw/7id0Z9OJjN8m/r9/c2sB2HU=",
+        "aad": "CNFro//vBN1xjp7hLH/plw==",
+        "count": 1
+      },
+      {
+        "Service": "examples",
+        "Mail": "bsp",
+        "Nonce": "rTLQxG3GRHzxyqsm",
+        "salt": "SbTnJ5KolbO+rJYyytqwow==",
+        "iterations": 1200000,
+        "ciphertext": "PjSFEuWYJrkfewze/WqvsqeT5ljWFP0=",
+        "aad": "KpG+uOpCS42axpCOFH1hHw==",
+        "count": 1
       }
     ],
     "example": [

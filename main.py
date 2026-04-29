@@ -23,8 +23,8 @@ class App:
         self.selected_service = ""
         with open("config.json") as file:
             config = json.load(file)["config"]
-            self.items_per_page =  config["items per frame"] 
-            self.font = config["font"]
+            self.items_per_page =  config["items_per_page"] 
+            self.font_family = config["font_family"]
         border_width = 2
         
         
@@ -54,7 +54,7 @@ class App:
             high = max_size
             best = min_size
 
-            font = tkfont.Font(family=self.font, size=1)
+            font = tkfont.Font(family=self.font_family, size=1)
 
             while low <= high:
                 middle = (low + high) // 2
@@ -105,7 +105,63 @@ class App:
         self.root.after(10, lambda: self.fit_font(name_label, "Password Manager"))
 
     def Load_config(self):
+        self.temp_items_per_page = self.items_per_page
+        self.temp_font_family = self.font_family
         self.clear_subframes(self.subframe_1)
+        
+        
+        fonts = list(tkfont.families())
+        change_fonts_combobox = ttk.Combobox(self.subframe_1,values=fonts)
+        change_fonts_combobox.set(self.font_family)
+        
+        items_per_page_label = tk.Label(self.subframe_1,text=f"items per page: {self.items_per_page+2}")
+        tk.Button(
+            self.subframe_1,text="+",command= lambda change =1:change_items_per_page(change)
+            ).place(rely=0.25,relheight=0.05,relx=0.8,relwidth=0.2)
+        tk.Button(
+            self.subframe_1,text="-",command= lambda change = -1:change_items_per_page(change)
+            ).place(rely=0.3,relheight=0.05,relx=0.8,relwidth=0.2)
+        def change_items_per_page(change:int):
+            self.temp_items_per_page += change 
+            self.temp_items_per_page = max(3,min(self.temp_items_per_page,20))
+            items_per_page_label.config(text=f"items per page: {self.temp_items_per_page+2}")
+            items_per_page_label.update_idletasks()
+            
+            
+        def change_font():
+            selected_font = change_fonts_combobox.get()
+            if selected_font not in fonts:
+                messagebox.showerror("Error","Not a font")
+                return
+            self.temp_font_family = selected_font
+        
+        
+        def apply_changes():
+            with open("config.json", "r") as file:
+                data = json.load(file)
+            self.items_per_page = self.temp_items_per_page
+            self.font_family = self.temp_font_family
+            data["config"]["items_per_page"] = self.items_per_page
+            data["config"]["font_family"] = self.font_family
+            with open("config.json", "w") as file:
+                json.dump(data, file, indent=4)
+                
+                
+        tk.Button(
+            self.subframe_1,text="Apply",command=apply_changes
+            ).place(relheight=0.1,relwidth=1,relx=0,rely=0)
+        
+        tk.Button(
+            self.subframe_1,text="change font",command=change_font
+            ).place(relheight=0.05,relwidth=1,rely=0.2)
+        items_per_page_label.place(relheight=0.1,relwidth=0.8,relx=0,rely=0.25)
+            
+        
+        change_fonts_combobox.place(rely=0.1,relx=0,relheight=0.1,relwidth=1)
+        
+        
+            
+        
         
         
     def load_vaults(self, page: int):
@@ -168,10 +224,10 @@ class App:
                 frame, text=str(text_name), command=lambda it=item: function(it)
             )
             button.place(
-                relheight=0.05, relx=0, relwidth=1, rely=btn_size + btn_size * i
+                relheight=btn_size, relx=0, relwidth=1, rely=btn_size + btn_size * i
             )
             self.fit_font(button,text_name)
-        if page * len(current_items) > len(items):
+        if  end < len(items):
             down_button = tk.Button(
                 frame,
                 text="page down",
@@ -184,7 +240,7 @@ class App:
 
     def clear_subframes(self, subframe: ttk.Frame):
         index = self.subframe_list.index(subframe)
-        for frame in self.subframe_list[index:-1]:
+        for frame in self.subframe_list[index:]:
             for widget in frame.winfo_children():
                 widget.destroy()
 
