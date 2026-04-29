@@ -9,8 +9,7 @@
         }
     },
     "config": {
-        "items_per_page": 3,
+        "items_per_page": 18,
         "font_family": "Arial"
     }
-  "items per frame":18,
 }

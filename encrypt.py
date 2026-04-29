@@ -101,6 +101,5 @@ def encrypt(
             print("error no matching entry found")
             return
     
-    
     with open(data_path, "w") as f:
         json.dump(database, f, indent=2)
