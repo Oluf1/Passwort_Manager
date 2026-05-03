@@ -123,12 +123,12 @@ class App:
             self.subframe_1,
             text="+",
             command=lambda change=1: change_items_per_page(change),
-        ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
+        ).place(rely=0.2, relheight=0.05, relx=0.8, relwidth=0.2)
         tk.Button(
             self.subframe_1,
             text="-",
             command=lambda change=-1: change_items_per_page(change),
-        ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
+        ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
 
         def change_items_per_page(change: int):
             self.temp_items_per_page += change
@@ -146,6 +146,7 @@ class App:
             self.temp_font_family = selected_font
 
         def apply_changes():
+            change_font()
             with open("config.json", "r") as file:
                 data = json.load(file)
             self.items_per_page = self.temp_items_per_page
@@ -154,17 +155,17 @@ class App:
             data["config"]["font_family"] = self.font_family
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
+            self.apply_fonts(self.subframe_1)
 
         tk.Button(self.subframe_1, text="Apply", command=apply_changes).place(
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
-        tk.Button(self.subframe_1, text="change font", command=change_font).place(
-            relheight=0.05, relwidth=1, rely=0.2
-        )
-        items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
-
+        
+        items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.2)
+        self.apply_fonts(self.subframe_1)
         change_fonts_combobox.place(rely=0.1, relx=0, relheight=0.1, relwidth=1)
+       
 
     def load_vaults(self, page: int):
         self.selected_vault = ""
