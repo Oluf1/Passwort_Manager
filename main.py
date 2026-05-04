@@ -169,10 +169,10 @@ class App:
 
     def load_vaults(self, page: int):
         self.selected_vault = ""
-        self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault)
+        self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
 
     def render_pages(
-        self, page: int, items: list, frame: ttk.Frame, function: Callable
+        self, page: int, items: list, frame: ttk.Frame, function: Callable,add_command:Callable
     ):
         self.clear_subframes(frame)
         start = page * self.items_per_page
@@ -212,7 +212,7 @@ class App:
                 frame,
                 text="page up",
                 command=lambda new_page=page - 1: self.render_pages(
-                    new_page, items, frame, function
+                    new_page, items, frame, function,add_command
                 ),
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
@@ -235,7 +235,7 @@ class App:
                 frame,
                 text="page down",
                 command=lambda new_page=page + 1: self.render_pages(
-                    new_page, items, frame, function
+                    new_page, items, frame, function,add_command
                 ),
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
@@ -322,7 +322,7 @@ class App:
         )
         new_vault_popup.after(10, self.apply_fonts, new_vault_popup)
         new_vault_popup.transient(self.root)
-        new_vault_popup.grab_set
+        new_vault_popup.grab_set()
 
     def open_vault(self, name: str):
         self.selected_vault = name
@@ -344,7 +344,7 @@ class App:
         else:
             print(f"{vault['type']} is not a valid save type.")
 
-        self.render_pages(0, services, self.subframe_2, self.open_service)
+        self.render_pages(0, services, self.subframe_2, self.open_service,self.add_service)
 
     def add_service(self):
         new_service_popup = tk.Toplevel(
@@ -384,7 +384,7 @@ class App:
 
         new_service_popup.after(10, self.apply_fonts, new_service_popup)
         new_service_popup.transient(self.root)
-        new_service_popup.grab_set
+        new_service_popup.grab_set()
 
     def open_service(self, name: str):
         self.selected_service = name
@@ -400,7 +400,7 @@ class App:
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.render_pages(0, Mails, self.subframe_3, self.open_mail)
+            self.render_pages(0, Mails, self.subframe_3, self.open_mail,self.add_mail)
 
     def open_mail(self, name: str):
         mail_popup = tk.Toplevel(self.root)
@@ -481,14 +481,14 @@ class App:
             )
 
             new_data_popup.transient(self.root)
-            new_data_popup.grab_set
+            new_data_popup.grab_set()
 
         tk.Button(mail_popup, text="change Password", command=update_password).place(
             relx=0.6, rely=0.15, relheight=0.15
         )
 
         mail_popup.transient(self.root)
-        mail_popup.grab_set
+        mail_popup.grab_set()
 
     def add_mail(self):
         add_mail_popup = tk.Toplevel(self.root)
@@ -527,7 +527,7 @@ class App:
         )
         add_mail_popup.after(10, self.apply_fonts, add_mail_popup)
         add_mail_popup.transient(self.root)
-        add_mail_popup.grab_set
+        add_mail_popup.grab_set()
 
     def scale_toplevel(self, window: tk.Toplevel, size: float):
         screen_width = window.winfo_screenwidth()
