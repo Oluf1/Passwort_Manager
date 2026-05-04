@@ -161,12 +161,14 @@ class App:
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
+        self.render_pages(0,self.vault_names,self.subframe_2,self.open_vault_config,self.new_vault)
         
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.2)
         self.apply_fonts(self.subframe_1)
         change_fonts_combobox.place(rely=0.1, relx=0, relheight=0.1, relwidth=1)
        
-
+    def open_vault_config(self,vault:str):
+        pass
     def load_vaults(self, page: int):
         self.selected_vault = ""
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
@@ -180,33 +182,23 @@ class App:
         btn_size = 1 / (self.items_per_page + 2)
         current_items = items[start:end]
         if page == 0:
-            match frame:
-                case self.subframe_1:
-                    new_vault_button = tk.Button(
-                        self.subframe_1, text="Add vault", command=self.new_vault
-                    )
-                    new_vault_button.place(
-                        relx=0, rely=0, relwidth=1, relheight=btn_size
-                    )
-                    self.fit_font(new_vault_button, text="Add vault")
-                case self.subframe_2:
-                    add_service_button = tk.Button(
-                        self.subframe_2, text="Add Service", command=self.add_service
-                    )
-                    add_service_button.place(
-                        relx=0, rely=0, relwidth=1, relheight=btn_size
-                    )
-                    self.fit_font(add_service_button, "Add Service")
-                case self.subframe_3:
-                    add_mail_button = tk.Button(
-                        self.subframe_3, text="add Mail", command=self.add_mail
-                    )
-                    add_mail_button.place(
-                        relx=0, rely=0, relwidth=1, relheight=btn_size
-                    )
-                    self.fit_font(add_mail_button, "add Mail")
+            match add_command:
+                case self.new_vault:
+                    btn_text = "Add vault"
+                case self.add_mail:
+                    btn_text = "add mail"
+                case self.add_service:
+                    btn_text = "add service"
                 case _:
-                    print("error wrong subframe in render_pages")
+                    print("wrong add_command function given ")
+                    return
+            new_x_button = tk.Button(
+                        frame, text=btn_text, command=add_command
+                    )
+            new_x_button.place(
+                        relx=0, rely=0, relwidth=1, relheight=btn_size
+                    )
+            self.fit_font(new_x_button, text=btn_text)
         else:
             up_button = tk.Button(
                 frame,
