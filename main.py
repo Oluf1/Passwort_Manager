@@ -8,8 +8,9 @@ from tkinter import filedialog
 from tkinter import simpledialog
 from decrypt import decrypt
 from encrypt import encrypt
-
-
+from pathlib import Path
+import binascii
+import os
 class App:
     def __init__(self):
         self.root = tk.Tk()
@@ -156,6 +157,7 @@ class App:
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
             self.apply_fonts(self.subframe_1)
+            self.Load_config()
 
         tk.Button(self.subframe_1, text="Apply", command=apply_changes).place(
             relheight=0.1, relwidth=1, relx=0, rely=0
@@ -167,8 +169,31 @@ class App:
         self.apply_fonts(self.subframe_1)
         change_fonts_combobox.place(rely=0.1, relx=0, relheight=0.1, relwidth=1)
        
-    def open_vault_config(self,vault:str):
-        pass
+    def open_vault_config(self,vault_name:str):
+        with open("config.json","r") as config_file:
+                vaults = json.load(config_file)["Vaults"]
+        vault = vaults[vault_name]
+        key_location =vault["directories"][0]
+            
+        if vault["type"] == "local":
+                
+            save_file_location = vault["directories"][1]
+        elif vault["tpye"] == "server":
+            print("error server not yet implemented")
+            return
+        else:
+            return
+        def delete_vault():
+            Path(save_file_location).unlink()
+            Path(key_location).unlink()
+            with open("config.json","r") as file:
+                config = json.load(file)
+            del config["Vaults"][vault_name]
+            with open("config.json", "w")as file:
+                json.dump(config,file, indent=2)
+        
+        tk.Button(self.subframe_3,text="delete",command=delete_vault).place(relheight=0.1,relwidth=1,relx=0,rely=0)
+            
     def load_vaults(self, page: int):
         self.selected_vault = ""
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
@@ -293,14 +318,34 @@ class App:
                 "directories": [key_dir, save_dir],
                 "type": "local",
             }
-            with open("config.json", "w") as file:
-                json.dump(data, file, indent=2)
-            with open(save_dir) as file:
-                save = json.load(file)
-
+            with open("config.json","w") as file:
+                json.dump(data,file,indent=2)
+            save_path = Path(save_dir)
+            try:
+                if save_path.stat().st_size > 0:
+                    with open(save_path, "r", encoding="utf-8") as file:
+                        save = json.load(file)
+                else:
+                    save = {}
+                
+            except json.JSONDecodeError:
+                save = {}
             save.setdefault("services", {})
-            with open(save_dir, "w") as file:
+            with open(save_path, "w", encoding="utf-8") as file:
                 json.dump(save, file, indent=2)
+            
+            
+            key_path = Path(key_dir)
+            content = key_path.read_text().strip()
+            try:
+                key = binascii.unhexlify(content)
+                if len(key) != 32:
+                    key = os.urandom(32)
+                    key_path.write_text(key.hex())
+            except binascii.Error:
+                print("not a valid hex string")
+            
+                
             new_vault_popup.destroy()
             self.vaults[vault_name] = {
                 "directories": [key_dir, save_dir],
@@ -420,7 +465,7 @@ class App:
             decrypted_password = decrypt(
                 master_password, self.selected_service, Mail, count, self.selected_vault
             )
-            password_Label.configure(text=decrypted_password)
+            password_Label.configure(text=f"Password: {decrypted_password}")
 
         tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
             relx=0.3, rely=0.15, relheight=0.15
