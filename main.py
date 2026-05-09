@@ -189,6 +189,8 @@ class App:
             with open("config.json","r") as file:
                 config = json.load(file)
             del config["Vaults"][vault_name]
+            self.vaults = config["Vaults"]
+            self.vault_names.remove(vault_name)
             with open("config.json", "w")as file:
                 json.dump(config,file, indent=2)
         
