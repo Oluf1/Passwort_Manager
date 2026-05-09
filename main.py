@@ -184,6 +184,9 @@ class App:
         else:
             return
         def delete_vault():
+            if simpledialog.askstring("confirm deletion","type vault name to delete") != vault_name:
+                print("deletion canceled")
+                return
             Path(save_file_location).unlink()
             Path(key_location).unlink()
             with open("config.json","r") as file:
@@ -193,7 +196,7 @@ class App:
             self.vault_names.remove(vault_name)
             with open("config.json", "w")as file:
                 json.dump(config,file, indent=2)
-        
+            self.Load_config()
         tk.Button(self.subframe_3,text="delete",command=delete_vault).place(relheight=0.1,relwidth=1,relx=0,rely=0)
             
     def load_vaults(self, page: int):
