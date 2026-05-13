@@ -11,6 +11,9 @@ from encrypt import encrypt
 from pathlib import Path
 import binascii
 import os
+import secrets 
+import string
+import random
 class App:
     def __init__(self):
         self.root = tk.Tk()
@@ -471,6 +474,8 @@ class App:
                 master_password, self.selected_service, Mail, count, self.selected_vault
             )
             password_Label.configure(text=f"Password: {decrypted_password}")
+            self.root.clipboard_clear()
+            self.root.clipboard_append(decrypted_password)
 
         tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
             relx=0.3, rely=0.15, relheight=0.15
@@ -490,12 +495,23 @@ class App:
             tk.Label(new_data_popup, text="new Password").place(
                 relx=0, relheight=0.1, rely=0.2
             )
+            def generate_password():
+                length = random.randint(0,8) +16
+                alphabet = string.ascii_letters + string.digits + string.punctuation
+                password = ''.join(secrets.choice(alphabet) for _ in range(length))
+                new_password_entry.delete(0,tk.END)
+                new_password_entry.insert(0,password)
+                
+                
+            tk.Button(new_data_popup,text="generate password",command=generate_password).place(
+                relx=0.5,relheight=0.1,rely=0.2
+            )
             new_password_entry.place(relx=0, relheight=0.1, rely=0.3, relwidth=1)
 
             new_master_entry = tk.Entry(new_data_popup)
             tk.Label(new_data_popup, text="new Master password").place(
                 relx=0, relheight=0.1, rely=0.4
-            )
+            )   
             new_master_entry.place(relx=0, rely=0.5, relheight=0.1, relwidth=1)
 
             def call_encryption():
@@ -541,6 +557,15 @@ class App:
         name_entry.place(relheight=0.15, relx=0, rely=0.15, relwidth=0.4)
 
         password_entry = tk.Entry(add_mail_popup)
+        def generate_password():
+                length = random.randint(0,8) +16
+                alphabet = string.ascii_letters + string.digits + string.punctuation
+                password = ''.join(secrets.choice(alphabet) for _ in range(length))
+                password_entry.delete(0,tk.END)
+                password_entry.insert(0,password)
+        tk.Button(add_mail_popup,text="generate password",command=generate_password).place(
+            relx=0.5,relheight=0.15,rely=0.3
+        )
         tk.Label(add_mail_popup, text="Password").place(
             relx=0, relheight=0.15, rely=0.3
         )
