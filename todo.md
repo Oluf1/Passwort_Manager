@@ -1,10 +1,10 @@
 Small:
     Frontend:
-        Add Icons
         Smooth out Button edges
     
 Medium:
-
+    Frontend:
+        Add Icons
 Large:
     Backend:
         Server:
