@@ -2,7 +2,6 @@ Small:
     Frontend:
         Add Icons
         Smooth out Button edges
-        Add colour Themes
     
 Medium:
 

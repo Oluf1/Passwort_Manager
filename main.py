@@ -14,10 +14,49 @@ import os
 import secrets 
 import string
 import random
+from dataclasses import dataclass
+
+
+
+@dataclass(frozen=True)
+class Theme:
+    background: str
+    button: str
+    text: str
+    top_level: str
+
+class Themes:
+    DARK = Theme(
+        background="#1E1E1E",
+        button="#2D2D2D",
+        text="#FFFFFF",
+        top_level="#252526",
+    )
+
+    LIGHT = Theme(
+        background="#F3F3F3",
+        button="#E1E1E1",
+        text="#111111",
+        top_level="#FFFFFF",
+    )
+
+    METRO = Theme(
+        background="#202020",
+        button="#0078D7",
+        text="#FFFFFF",
+        top_level="#2B2B2B",
+    )
+
+    ALL = {
+        "dark": DARK,
+        "light": LIGHT,
+        "metro": METRO,
+    }
 class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Password Manager")
+
 
         with open("config.json") as f:
             self.vaults = json.load(f)["Vaults"]
@@ -30,21 +69,37 @@ class App:
             config = json.load(file)["config"]
             self.items_per_page = config["items_per_page"]
             self.font_family = config["font_family"]
+            self.theme = config["theme"]
+        
+        self.current_theme = Themes.ALL[self.theme]
+        self.background_color = self.current_theme.background
+        self.button_color = self.current_theme.button
+        self.text_color = self.current_theme.text
+        self.toplevel_color = self.current_theme.top_level
+        
+        self.root.configure(bg=self.background_color)
+        
+        
+            
         border_width = 2
 
-        self.main_frame = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
+        self.main_frame = tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
-        self.subframe_1 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
+        self.subframe_1 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_1.place(relheight=1, relwidth=0.15, relx=0.2, rely=0)
-        self.subframe_2 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
+        self.subframe_2 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_2.place(relheight=1, relwidth=0.25, relx=0.35, rely=0)
-        self.subframe_3 = ttk.Frame(self.root, borderwidth=border_width, relief="solid")
+        self.subframe_3 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
 
         self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
+        self.apply_theme()
         self.load_start_ui()
         self.root.mainloop()
-
+    def apply_theme(self):
+        for frame in self.subframe_list:
+            frame.configure(bg=self.background_color)
+        self.main_frame.config(bg=self.background_color)
     def fit_font(self, widget, text: str):
         try:
             widget.update_idletasks()
@@ -75,7 +130,8 @@ class App:
             font.configure(size=best)
 
             if "text" in widget.keys():
-                widget.config(font=font, text=text)
+                widget.config(font=font, text=text,fg=self.text_color,bg=self.button_color)
+            
 
         except Exception as e:
             print("Error in fit_font:", e)
@@ -91,7 +147,7 @@ class App:
         except tk.TclError:
             self.root.attributes("-zoomed", True)
 
-        name_label = tk.Label(self.main_frame)
+        name_label = tk.Label(self.main_frame,text="Password Manager")
         open_vaults_button = tk.Button(
             self.main_frame,
             text="Vaults",
@@ -109,7 +165,7 @@ class App:
             relheight=0.1,
         )
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
-        self.root.after(10, lambda: self.fit_font(name_label, "Password Manager"))
+        self.root.after(10,lambda: self.apply_fonts(self.main_frame))
 
     def Load_config(self):
         self.temp_items_per_page = self.items_per_page
@@ -133,6 +189,10 @@ class App:
             text="-",
             command=lambda change=-1: change_items_per_page(change),
         ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
+        themes = list(Themes.ALL.keys())
+        
+        themes_combobox = ttk.Combobox(self.subframe_1,values=themes)
+        themes_combobox.set(self.theme)
 
         def change_items_per_page(change: int):
             self.temp_items_per_page += change
@@ -148,19 +208,34 @@ class App:
                 messagebox.showerror("Error", "Not a font")
                 return
             self.temp_font_family = selected_font
-
+        def change_theme():
+            selected_theme = themes_combobox.get()
+            if selected_theme not in themes:
+                messagebox.showerror("Error","Not a Theme")
+            self.theme = selected_theme
+            self.current_theme = Themes.ALL[self.theme]
+            self.background_color = self.current_theme.background
+            self.button_color = self.current_theme.button
+            self.text_color = self.current_theme.text
+            self.toplevel_color = self.current_theme.top_level
+            self.apply_theme()
+            
+            
         def apply_changes():
             change_font()
+            change_theme()
             with open("config.json", "r") as file:
                 data = json.load(file)
             self.items_per_page = self.temp_items_per_page
             self.font_family = self.temp_font_family
             data["config"]["items_per_page"] = self.items_per_page
             data["config"]["font_family"] = self.font_family
+            data["config"]["theme"]=self.theme
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
             self.apply_fonts(self.subframe_1)
             self.Load_config()
+            self.load_start_ui()
 
         tk.Button(self.subframe_1, text="Apply", command=apply_changes).place(
             relheight=0.1, relwidth=1, relx=0, rely=0
@@ -169,13 +244,16 @@ class App:
         self.render_pages(0,self.vault_names,self.subframe_2,self.open_vault_config,self.new_vault)
         
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.2)
-        self.apply_fonts(self.subframe_1)
         change_fonts_combobox.place(rely=0.1, relx=0, relheight=0.1, relwidth=1)
+        themes_combobox.place(rely=0.3,relheight=0.1,relwidth=1)
+        
+        
+        self.apply_fonts(self.subframe_1)
+        
+       
        
     def open_vault_config(self,vault_name:str):
-        with open("config.json","r") as config_file:
-                vaults = json.load(config_file)["Vaults"]
-        vault = vaults[vault_name]
+        vault = self.vaults[vault_name]
         key_location =vault["directories"][0]
             
         if vault["type"] == "local":
@@ -201,13 +279,15 @@ class App:
                 json.dump(config,file, indent=2)
             self.Load_config()
         tk.Button(self.subframe_3,text="delete",command=delete_vault).place(relheight=0.1,relwidth=1,relx=0,rely=0)
+        
+        self.apply_fonts(self.subframe_3)
             
     def load_vaults(self, page: int):
         self.selected_vault = ""
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
 
     def render_pages(
-        self, page: int, items: list, frame: ttk.Frame, function: Callable,add_command:Callable
+        self, page: int, items: list, frame: tk.Frame, function: Callable,add_command:Callable
     ):
         self.clear_subframes(frame)
         start = page * self.items_per_page
@@ -266,7 +346,7 @@ class App:
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
             self.fit_font(down_button, "page down")
 
-    def clear_subframes(self, subframe: ttk.Frame):
+    def clear_subframes(self, subframe: tk.Frame):
         index = self.subframe_list.index(subframe)
         for frame in self.subframe_list[index:]:
             for widget in frame.winfo_children():

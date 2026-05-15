@@ -10,6 +10,7 @@
     },
     "config": {
         "items_per_page": 18,
-        "font_family": "Arial"
+        "font_family": "Arial",
+        "theme": "light"
     }
 }
