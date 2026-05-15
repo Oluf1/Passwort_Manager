@@ -13,12 +13,14 @@ def encrypt(
     master_pass: bytes,
     password: bytes,
     service: str,
+    vault: str,
     mail: str,
     count: int,
     update_existing: bool,
+    new_mail:str
 ):
     with open("config.json") as f:
-        config = json.load(f)
+        config = json.load(f)["Vaults"][vault]
 
     key_path = config["directories"][0]
     data_path = config["directories"][1]
@@ -71,22 +73,33 @@ def encrypt(
         "count": count,
     }
 
-    entries = database.setdefault("Entries", [])
-    updated = False
-
-    for entry in entries:
-        if (
-            entry["count"] == count
-            and update_existing
-            and entry["Service"] == service
-            and entry["Mail"] == mail
-        ):
-            entry.update(data_to_save)
-            updated = True
-            break
-
-    if not updated:
-        entries.append(data_to_save)
-
+    
+    if not update_existing:
+        for ele in database["services"][service]:
+            if ele["Mail"] == mail:
+                count+=1 
+        
+        data_to_save["count"] = count        
+        
+        database["services"].setdefault(service,[])
+        database["services"][service].append(data_to_save)
+    else:
+        data_to_save["Mail"] = new_mail
+        if mail != new_mail:
+            count = 1
+            for entry in database["services"][service]:
+                if entry["Mail"] == new_mail:
+                    count +=1 
+            data_to_save["count"] = count
+        
+        for entry in database["services"][service]:
+            if entry["Mail"] == mail and entry["count"]== count:
+                data_to_save["Mail"] = new_mail
+                database["services"][service][entry] = data_to_save
+                break
+        else:
+            print("error no matching entry found")
+            return
+    
     with open(data_path, "w") as f:
         json.dump(database, f, indent=2)

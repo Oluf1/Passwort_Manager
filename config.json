@@ -1,6 +1,16 @@
 {
-  "directories": [
-    "examplekey.txt",
-    "exampledata.json"
-  ]
+    "Vaults": {
+        "Vault1": {
+            "directories": [
+                "examplekey.txt",
+                "exampledata.json"
+            ],
+            "type": "local"
+        }
+    },
+    "config": {
+        "items_per_page": 18,
+        "font_family": "Arial",
+        "theme": "light"
+    }
 }

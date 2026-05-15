@@ -9,10 +9,11 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
-def decrypt(master_pass: bytes, service: str, mail: str, count: int):
+def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)-> str:
     with open("config.json") as f:
-        config = json.load(f)
-
+        config = json.load(f)["Vaults"][vault]
+    if config["type"] == "server":
+        return "error server not yet supported"
     key_path = config["directories"][0]
     data_path = config["directories"][1]
 
@@ -30,18 +31,18 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int):
     except FileNotFoundError:
         raise SystemExit("File not found, change values in config.json")
 
-    entries = database.setdefault("Entries", [])
+    entry = database["services"][service]
 
-    for entry in entries:
-        salt = base64.b64decode(entry["salt"])
-        nonce = base64.b64decode(entry["Nonce"])
-        aad = base64.b64decode(entry["aad"])
-        ciphertext = base64.b64decode(entry["ciphertext"])
+    for Mails in entry:
+        salt = base64.b64decode(Mails["salt"])
+        nonce = base64.b64decode(Mails["Nonce"])
+        aad = base64.b64decode(Mails["aad"])
+        ciphertext = base64.b64decode(Mails["ciphertext"])
 
-        iterations = entry["iterations"]
-        entry_service = entry["Service"]
-        entry_mail = entry["Mail"]
-        entry_count = entry["count"]
+        iterations = Mails["iterations"]
+        entry_service = Mails["Service"]
+        entry_mail = Mails["Mail"]
+        entry_count = Mails["count"]
 
         if (
             entry_service == service
@@ -71,15 +72,20 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int):
                     ciphertext,
                     aad,
                 ).decode("utf-8")
-
-                print(f"Password: {decrypted_password}")
+                
+                return decrypted_password
 
             except cryptography.exceptions.InvalidTag:
+                
                 print("Wrong master password")
+                return "Wrong master password"
 
             except Exception as error:
                 print(f"Different error: {error}")
+                return f"Different error: {error}"
 
             break
     else:
+        
         print("No matching entry")
+        return "No matching entry"
