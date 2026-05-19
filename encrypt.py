@@ -4,6 +4,7 @@ import hmac
 import json
 import os
 
+from argon2.low_level import hash_secret_raw,Type
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -20,10 +21,12 @@ def encrypt(
     new_mail:str
 ):
     with open("config.json") as f:
-        config = json.load(f)["Vaults"][vault]
-
-    key_path = config["directories"][0]
-    data_path = config["directories"][1]
+        config = json.load(f)
+    
+        
+    Kdf_type = config["config"]["Kdf_type"]
+    key_path = config["Vaults"][vault]["directories"][0]
+    data_path = config["Vaults"][vault]["directories"][1]
 
     nonce = os.urandom(12)  # saved with the password
     try:
@@ -37,15 +40,30 @@ def encrypt(
     salt = os.urandom(16)
     aad = os.urandom(16)
     kdf_iterations = 1_200_000
+    match Kdf_type:
+        case "PBKDF2":
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                iterations=kdf_iterations,
+            )
+            derived_master = kdf.derive(master_pass)
+        case "Argon2":
+            derived_master = hash_secret_raw(
+                secret=master_pass,
+                salt=salt,
+                time_cost=3,
+                memory_cost=65536,  
+                parallelism=4,
+                hash_len=32,
+                type=Type.ID,
+            )
+        case _:
+            raise SystemExit("not a KDF Function")
+            
 
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=kdf_iterations,
-    )
-
-    derived_master = kdf.derive(master_pass)
+   
 
     final_key = hmac.new(
         key=key,
