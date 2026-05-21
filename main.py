@@ -52,6 +52,20 @@ class Themes:
         "light": LIGHT,
         "metro": METRO,
     }
+    
+    
+class Label_combobox:
+    def __init__(self,widget_master:tk.Frame,text:str,combobx_values:list,default,height:float,y_pos:float) -> None: 
+        #height is relative as such integer division is not neccesary
+        label_height = height/3
+        combobx_height = 2*height/3
+        combobx_ypos = y_pos + label_height
+        tk.Label(master=widget_master,text=text).place(rely=y_pos,relheight=label_height,relwidth=1)
+        
+        self.combobox = ttk.Combobox(master=widget_master,values=combobx_values)
+        self.combobox.set(default)
+        self.combobox.place(relheight=combobx_height,rely=combobx_ypos,relwidth=1)
+        
 class App:
     def __init__(self):
         self.root = tk.Tk()
@@ -70,7 +84,9 @@ class App:
             self.items_per_page = config["items_per_page"]
             self.font_family = config["font_family"]
             self.theme = config["theme"]
-        
+            self.selected_kdf = config["Kdf_type"] 
+            
+        self.supported_kdfs = ["Argon2","PBKDF2"]
         self.current_theme = Themes.ALL[self.theme]
         self.background_color = self.current_theme.background
         self.button_color = self.current_theme.button
@@ -173,8 +189,9 @@ class App:
         self.clear_subframes(self.subframe_1)
 
         fonts = list(tkfont.families())
-        change_fonts_combobox = ttk.Combobox(self.subframe_1, values=fonts)
-        change_fonts_combobox.set(self.font_family)
+        fonts_combolabel_obj = Label_combobox(self.subframe_1,"Fonts",fonts,self.font_family,0.15,0.1)
+        change_fonts_combolabel = fonts_combolabel_obj.combobox
+        
 
         items_per_page_label = tk.Label(
             self.subframe_1, text=f"items per page: {self.items_per_page + 2}"
@@ -183,16 +200,17 @@ class App:
             self.subframe_1,
             text="+",
             command=lambda change=1: change_items_per_page(change),
-        ).place(rely=0.2, relheight=0.05, relx=0.8, relwidth=0.2)
+        ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
         tk.Button(
             self.subframe_1,
             text="-",
             command=lambda change=-1: change_items_per_page(change),
-        ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
+        ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
         themes = list(Themes.ALL.keys())
         
-        themes_combobox = ttk.Combobox(self.subframe_1,values=themes)
-        themes_combobox.set(self.theme)
+        themes_combolabel = Label_combobox(self.subframe_1,"Theme",themes,self.theme,0.15,0.35)
+         
+        defualt_kdf_combolabel = Label_combobox(self.subframe_1,"Default Kdf",self.supported_kdfs,self.selected_kdf,0.15,0.5)
 
         def change_items_per_page(change: int):
             self.temp_items_per_page += change
@@ -203,13 +221,13 @@ class App:
             items_per_page_label.update_idletasks()
 
         def change_font():
-            selected_font = change_fonts_combobox.get()
+            selected_font = change_fonts_combolabel.get()
             if selected_font not in fonts:
                 messagebox.showerror("Error", "Not a font")
                 return
             self.temp_font_family = selected_font
         def change_theme():
-            selected_theme = themes_combobox.get()
+            selected_theme = themes_combolabel.combobox.get()
             if selected_theme not in themes:
                 messagebox.showerror("Error","Not a Theme")
             self.theme = selected_theme
@@ -224,6 +242,7 @@ class App:
         def apply_changes():
             change_font()
             change_theme()
+            new_kdf =  defualt_kdf_combolabel.combobox.get()
             with open("config.json", "r") as file:
                 data = json.load(file)
             self.items_per_page = self.temp_items_per_page
@@ -231,6 +250,9 @@ class App:
             data["config"]["items_per_page"] = self.items_per_page
             data["config"]["font_family"] = self.font_family
             data["config"]["theme"]=self.theme
+            
+            data["config"]["Kdf_type"] = new_kdf
+            self.selected_kdf = new_kdf
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
             self.apply_fonts(self.subframe_1)
@@ -243,9 +265,7 @@ class App:
 
         self.render_pages(0,self.vault_names,self.subframe_2,self.open_vault_config,self.new_vault)
         
-        items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.2)
-        change_fonts_combobox.place(rely=0.1, relx=0, relheight=0.1, relwidth=1)
-        themes_combobox.place(rely=0.3,relheight=0.1,relwidth=1)
+        items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
         
         
         self.apply_fonts(self.subframe_1)

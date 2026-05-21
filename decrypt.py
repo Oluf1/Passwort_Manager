@@ -14,7 +14,7 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)->
     with open("config.json") as f:
         config = json.load(f)
     
-    if config["type"] == "server":
+    if config["Vaults"][vault]["type"] == "server":
         return "error server not yet supported"
     key_path = config["Vaults"][vault]["directories"][0]
     data_path = config["Vaults"][vault]["directories"][1]
