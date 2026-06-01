@@ -2,7 +2,6 @@ Small:
     Frontend:
         Smooth out Button edges
     Backend:
-        Allow for multiple KDF functions
     
 Medium:
     Frontend:

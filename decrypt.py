@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+from tkinter import messagebox
 import json
 
 from argon2.low_level import hash_secret_raw,Type
@@ -92,16 +93,14 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)->
                 return decrypted_password
 
             except cryptography.exceptions.InvalidTag:
-                
-                print("Wrong master password")
+                messagebox.showerror("Error","Wrong masterpassword")
                 return "Wrong master password"
 
             except Exception as error:
-                print(f"Different error: {error}")
+                messagebox.showerror("Error",str(error))
                 return f"Different error: {error}"
 
             break
     else:
-        
-        print("No matching entry")
+        messagebox.showerror("Error","No matching entry")
         return "No matching entry"

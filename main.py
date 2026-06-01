@@ -150,7 +150,7 @@ class App:
             
 
         except Exception as e:
-            print("Error in fit_font:", e)
+            messagebox.showerror("Error in fit_font",str(e))
 
     def apply_fonts(self, parent):
         for widget in parent.winfo_children():
@@ -280,13 +280,13 @@ class App:
                 
             save_file_location = vault["directories"][1]
         elif vault["tpye"] == "server":
-            print("error server not yet implemented")
+            messagebox.showerror("Error","server not yet implemented")
             return
         else:
             return
         def delete_vault():
             if simpledialog.askstring("confirm deletion","type vault name to delete") != vault_name:
-                print("deletion canceled")
+                messagebox.showerror("Deletion canceled","Vault name not matching")
                 return
             Path(save_file_location).unlink()
             Path(key_location).unlink()
@@ -323,7 +323,7 @@ class App:
                 case self.add_service:
                     btn_text = "add service"
                 case _:
-                    print("wrong add_command function given ")
+                    messagebox.showerror("Error","wrong add_command function given ")
                     return
             new_x_button = tk.Button(
                         frame, text=btn_text, command=add_command
@@ -451,7 +451,7 @@ class App:
                     key = os.urandom(32)
                     key_path.write_text(key.hex())
             except binascii.Error:
-                print("not a valid hex string")
+                messagebox.showerror("Error","not a valid hex string")
             
                 
             new_vault_popup.destroy()
@@ -485,9 +485,9 @@ class App:
                 services = list(data["services"].keys())
 
         elif vault["type"] == "server":
-            print("not yet implemented")
+            messagebox.showerror("Error","server not yet implemented")
         else:
-            print(f"{vault['type']} is not a valid save type.")
+            messagebox.showerror("Error",f"{vault[type]} is not a valid save type.")
 
         self.render_pages(0, services, self.subframe_2, self.open_service,self.add_service)
 

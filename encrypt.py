@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import os
+from tkinter import messagebox
 
 from argon2.low_level import hash_secret_raw,Type
 from cryptography.hazmat.primitives import hashes
@@ -116,7 +117,7 @@ def encrypt(
                 database["services"][service][entry] = data_to_save
                 break
         else:
-            print("error no matching entry found")
+            messagebox.showerror("Error","no matching entry found")
             return
     
     with open(data_path, "w") as f:
