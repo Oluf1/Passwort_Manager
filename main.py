@@ -46,7 +46,7 @@ class Themes:
         text="#FFFFFF",
         top_level="#2B2B2B",
     )
-
+    
     ALL = {
         "dark": DARK,
         "light": LIGHT,
@@ -170,7 +170,7 @@ class App:
             bg="royalblue",
             command=lambda: self.load_vaults(0),
         )
-        name_label.place(relx=0, rely=0, relwidth=0.95)
+        name_label.place(relx=0, rely=0, relwidth=0.95,relheight=0.1)
         config_button = tk.Button(
             self.main_frame, text="config", bg="lightgrey", command=self.Load_config
         )
@@ -279,7 +279,7 @@ class App:
         if vault["type"] == "local":
                 
             save_file_location = vault["directories"][1]
-        elif vault["tpye"] == "server":
+        elif vault["type"] == "server":
             messagebox.showerror("Error","server not yet implemented")
             return
         else:
@@ -307,13 +307,20 @@ class App:
         self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
 
     def render_pages(
-        self, page: int, items: list, frame: tk.Frame, function: Callable,add_command:Callable
+        self, page: int, items: list[str], frame: tk.Frame, function: Callable,add_command:Callable,filter_str=None
     ):
         self.clear_subframes(frame)
         start = page * self.items_per_page
         end = start + self.items_per_page
-        btn_size = 1 / (self.items_per_page + 2)
-        current_items = items[start:end]
+        btn_size = 1 / (self.items_per_page + 3)
+        filtered_items = []
+        if filter_str:
+            for item in items:
+                if filter_str in item:
+                    filtered_items.append(item)
+        else:
+            filtered_items = items
+        current_items = filtered_items[start:end]
         if page == 0:
             match add_command:
                 case self.new_vault:
@@ -342,7 +349,13 @@ class App:
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
             self.fit_font(up_button, "page up")
-
+        search_entry = tk.Entry(frame)
+        if filter_str:
+            search_entry.insert(0,filter_str)
+        search_entry.place(relx=0,rely=btn_size,relheight=btn_size,relwidth=0.8)
+        def filtered_search():
+            self.render_pages(page,items,frame,function,add_command,search_entry.get())
+        tk.Button(frame,command=filtered_search,text="Search").place(relx=0.8,rely=btn_size,relheight=btn_size,relwidth=0.2)
         for i, item in enumerate(current_items):
             if frame == self.subframe_3:
                 text_name = f"{item[0]} {str(item[1])}"
@@ -352,7 +365,7 @@ class App:
                 frame, text=str(text_name), command=lambda it=item: function(it)
             )
             button.place(
-                relheight=btn_size, relx=0, relwidth=1, rely=btn_size + btn_size * i
+                relheight=btn_size, relx=0, relwidth=1, rely=2*btn_size + btn_size * i
             )
             self.fit_font(button, text_name)
         if end < len(items):
@@ -576,6 +589,13 @@ class App:
             password_Label.configure(text=f"Password: {decrypted_password}")
             self.root.clipboard_clear()
             self.root.clipboard_append(decrypted_password)
+            self.root.after(
+                            30000,
+                            lambda: (
+                                self.root.clipboard_clear(),
+                                self.root.clipboard_append("")
+                            )
+                        )
 
         tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
             relx=0.3, rely=0.15, relheight=0.15
@@ -596,7 +616,7 @@ class App:
                 relx=0, relheight=0.1, rely=0.2
             )
             def generate_password():
-                length = random.randint(0,8) +16
+                length = random.randint(0,8) +30
                 alphabet = string.ascii_letters + string.digits + string.punctuation
                 password = ''.join(secrets.choice(alphabet) for _ in range(length))
                 new_password_entry.delete(0,tk.END)
@@ -653,7 +673,7 @@ class App:
         self.scale_toplevel(add_mail_popup, 0.5)
 
         name_entry = tk.Entry(add_mail_popup)
-        tk.Label(add_mail_popup, text="Email").place(relx=0, rely=0, relheight=0.15)
+        tk.Label(add_mail_popup, text="Email").place(relx=0, rely=0, relheight=0.15,relwidth=0.2)
         name_entry.place(relheight=0.15, relx=0, rely=0.15, relwidth=0.4)
 
         password_entry = tk.Entry(add_mail_popup)
@@ -673,24 +693,49 @@ class App:
 
         master_password_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup, text="Masterpassword").place(
-            relx=0, rely=0.6, relheight=0.1
+            relx=0, rely=0.6, relheight=0.1,relwidth=0.3
         )
-        master_password_entry.place(relx=0, rely=0.7, relheight=0.1, relwidth=1)
+        master_password_entry.place(relx=0, rely=0.7, relheight=0.1, relwidth=0.45)
+        confirm_master_password_entry = tk.Entry(add_mail_popup)
+        confirm_master_password_entry.place(relx=0.5,rely=0.7,relheight=0.1,relwidth=0.5)
+        tk.Label(add_mail_popup,text="Confirm Masterpassword").place(relheight=0.1,relx=0.5,relwidth=0.3,rely=0.6)
 
         def add_entry():
+            
             name = name_entry.get()
             service = self.selected_service
             vault = self.selected_vault
             password = password_entry.get()
             master = master_password_entry.get()
+            confirmation_master = confirm_master_password_entry.get()
+            if not all([name, password, vault, service, master, confirmation_master]):
+                messagebox.showerror(
+                    "Error",
+                    "All entrys must be filled to proceed"
+                    )
+                return  
+            elif master != confirmation_master:
+                messagebox.showerror(
+                    "Error",
+                    "Master passwords not matching"
+                )
+                return
+            
             encrypt(
-                master.encode(), password.encode(), service, vault, name, 1, False, name
+                    master.encode(),
+                    password.encode(),
+                    service, 
+                    vault, 
+                    name,
+                    1, 
+                    False, 
+                    name
             )
             add_mail_popup.destroy()
             self.open_service(self.selected_service)
 
         tk.Button(add_mail_popup, text="add", command=add_entry).place(
-            relx=0, rely=0.8, relheight=0.1
+            relx=0, rely=0.9, relheight=0.1
         )
         add_mail_popup.after(10, self.apply_fonts, add_mail_popup)
         add_mail_popup.transient(self.root)
@@ -704,6 +749,7 @@ class App:
         x = int((screen_width - width) * 0.5)
         y = int((screen_height - height) * 0.5)
         window.geometry(f"{width}x{height}+{x}+{y}")
+        window.config(bg=self.background_color)
 
 
 if __name__ == "__main__":

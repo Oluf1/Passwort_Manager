@@ -4,12 +4,9 @@ Small:
         Password Strength checker
 
     Backend:
-        Master Password confirmation
-    
 Medium:
     Frontend:
         Add Icons
-        Search Function
     Backend:
         Notes
         
