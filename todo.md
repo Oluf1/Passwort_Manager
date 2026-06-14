@@ -2,13 +2,19 @@ Small:
     Frontend:
         Smooth out Button edges
         Password Strength checker
-
+        Security Tab
     Backend:
+        Security Tab:
+            Password Last updated since(with easy update)
+            Recent Security breaches 
+        
+
 Medium:
     Frontend:
         Add Icons
     Backend:
         Notes
+        
         
     
 Large:
