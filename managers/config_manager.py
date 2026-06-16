@@ -29,12 +29,33 @@ class ConfigManager:
     def theme_name(self):
         return self.config["theme"]
 
+    @theme_name.setter
+    def theme_name(self, value):
+        self.config["theme"] = value
+
+
     @property
     def font_family(self):
         return self.config["font_family"]
+
+    @font_family.setter
+    def font_family(self, value):
+        self.config["font_family"] = value
+
+
     @property
     def items_per_page(self):
         return self.config["items_per_page"]
+
+    @items_per_page.setter
+    def items_per_page(self, value):
+        self.config["items_per_page"] = value
+
+
     @property
     def default_kdf(self):
         return self.config["Kdf_type"]
+
+    @default_kdf.setter
+    def default_kdf(self, value):
+        self.config["Kdf_type"] = value

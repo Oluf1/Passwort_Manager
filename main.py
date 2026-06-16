@@ -11,40 +11,43 @@ from encrypt import encrypt
 from pathlib import Path
 import binascii
 import os
-import secrets 
+import secrets
 import string
 import random
-from dataclasses import dataclass
 from managers import ConfigManager
 from managers import Themes
 
-
-@dataclass(frozen=True)
-class Theme:
-    background: str
-    button: str
-    text: str
-    top_level: str
-
-
-    
 class Label_combobox:
-    def __init__(self,widget_master:tk.Frame,text:str,combobx_values:list,default,height:float,y_pos:float) -> None: 
-        #height is relative as such integer division is not neccesary
-        label_height = height/3
-        combobx_height = 2*height/3
+    def __init__(
+        self,
+        widget_master: tk.Frame,
+        text: str,
+        combobx_values: list,
+        default,
+        height: float,
+        y_pos: float,
+    ) -> None:
+        # height is relative as such integer division is not neccesary
+        label_height = height / 3
+        combobx_height = 2 * height / 3
         combobx_ypos = y_pos + label_height
-        tk.Label(master=widget_master,text=text).place(rely=y_pos,relheight=label_height,relwidth=1)
-        
-        self.combobox = ttk.Combobox(master=widget_master,values=combobx_values)
+        tk.Label(master=widget_master, text=text).place(
+            rely=y_pos, relheight=label_height, relwidth=1
+        )
+
+        self.combobox = ttk.Combobox(master=widget_master, values=combobx_values)
         self.combobox.set(default)
-        self.combobox.place(relheight=combobx_height,rely=combobx_ypos,relwidth=1)
-        
-class App:  
+        self.combobox.place(relheight=combobx_height, rely=combobx_ypos, relwidth=1)
+
+
+class App:
+    CONFIG = ConfigManager()
+    THEMES = Themes()
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Password Manager")
-
+        self.setup()
 
         with open("config.json") as f:
             self.vaults = json.load(f)["Vaults"]
@@ -53,27 +56,24 @@ class App:
             self.vault_names.append(name)
         self.selected_vault = ""
         self.selected_service = ""
-            
-        self.supported_kdfs = ["Argon2","PBKDF2"]
-        self.current_theme = Themes.ALL[self.theme]
+
+        self.supported_kdfs = ["Argon2", "PBKDF2"]
+        self.current_theme = Themes.ALL[self.CONFIG.theme_name]
         self.background_color = self.current_theme.background
         self.button_color = self.current_theme.button
         self.text_color = self.current_theme.text
         self.toplevel_color = self.current_theme.top_level
-        
+
         self.root.configure(bg=self.background_color)
-        
-        
-            
-        
+
         self.apply_theme()
         self.load_start_ui()
         self.root.mainloop()
-        
-    def on_start(self):
-        self.get_config()
+
+    def setup(self):
+
         self.create_frames()
-        
+
     def create_frames(self):
         border_width = 2
 
@@ -87,20 +87,12 @@ class App:
         self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
 
         self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
-        
-    def get_config(self):
-        self.config_manager = ConfigManager()
-        self.items_per_page = self.config_manager.items_per_page
-        self.theme = self.config_manager.theme_name
-        self.default_kdf = self.config_manager.default_kdf
-        self.font_family = self.config_manager.font_family
-    def get_themes(self):
-        themes = Themes()
-    
+
     def apply_theme(self):
         for frame in self.subframe_list:
             frame.configure(bg=self.background_color)
         self.main_frame.config(bg=self.background_color)
+
     def fit_font(self, widget, text: str):
         try:
             widget.update_idletasks()
@@ -113,7 +105,7 @@ class App:
             high = max_size
             best = min_size
 
-            font = tkfont.Font(family=self.font_family, size=1)
+            font = tkfont.Font(family=self.CONFIG.font_family, size=1)
 
             while low <= high:
                 middle = (low + high) // 2
@@ -131,11 +123,12 @@ class App:
             font.configure(size=best)
 
             if "text" in widget.keys():
-                widget.config(font=font, text=text,fg=self.text_color,bg=self.button_color)
-            
+                widget.config(
+                    font=font, text=text, fg=self.text_color, bg=self.button_color
+                )
 
         except Exception as e:
-            messagebox.showerror("Error in fit_font",str(e))
+            messagebox.showerror("Error in fit_font", str(e))
 
     def apply_fonts(self, parent):
         for widget in parent.winfo_children():
@@ -148,14 +141,14 @@ class App:
         except tk.TclError:
             self.root.attributes("-zoomed", True)
 
-        name_label = tk.Label(self.main_frame,text="Password Manager")
+        name_label = tk.Label(self.main_frame, text="Password Manager")
         open_vaults_button = tk.Button(
             self.main_frame,
             text="Vaults",
             bg="royalblue",
             command=lambda: self.load_vaults(0),
         )
-        name_label.place(relx=0, rely=0, relwidth=0.95,relheight=0.1)
+        name_label.place(relx=0, rely=0, relwidth=0.95, relheight=0.1)
         config_button = tk.Button(
             self.main_frame, text="config", bg="lightgrey", command=self.Load_config
         )
@@ -166,20 +159,21 @@ class App:
             relheight=0.1,
         )
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
-        self.root.after(10,lambda: self.apply_fonts(self.main_frame))
+        self.root.after(10, lambda: self.apply_fonts(self.main_frame))
 
     def Load_config(self):
-        self.temp_items_per_page = self.items_per_page
-        self.temp_font_family = self.font_family
+        self.temp_items_per_page = self.CONFIG.items_per_page
+        self.temp_font_family = self.CONFIG.font_family
         self.clear_subframes(self.subframe_1)
 
         fonts = list(tkfont.families())
-        fonts_combolabel_obj = Label_combobox(self.subframe_1,"Fonts",fonts,self.font_family,0.15,0.1)
+        fonts_combolabel_obj = Label_combobox(
+            self.subframe_1, "Fonts", fonts, self.CONFIG.font_family, 0.15, 0.1
+        )
         change_fonts_combolabel = fonts_combolabel_obj.combobox
-        
 
         items_per_page_label = tk.Label(
-            self.subframe_1, text=f"items per page: {self.items_per_page + 2}"
+            self.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 2}"
         )
         tk.Button(
             self.subframe_1,
@@ -192,10 +186,19 @@ class App:
             command=lambda change=-1: change_items_per_page(change),
         ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
         themes = list(Themes.ALL.keys())
-        
-        themes_combolabel = Label_combobox(self.subframe_1,"Theme",themes,self.theme,0.15,0.35)
-         
-        defualt_kdf_combolabel = Label_combobox(self.subframe_1,"Default Kdf",self.supported_kdfs,self.default_kdf,0.15,0.5)
+
+        themes_combolabel = Label_combobox(
+            self.subframe_1, "Theme", themes, self.CONFIG.theme_name, 0.15, 0.35
+        )
+
+        defualt_kdf_combolabel = Label_combobox(
+            self.subframe_1,
+            "Default Kdf",
+            self.supported_kdfs,
+            self.CONFIG.default_kdf,
+            0.15,
+            0.5,
+        )
 
         def change_items_per_page(change: int):
             self.temp_items_per_page += change
@@ -211,33 +214,33 @@ class App:
                 messagebox.showerror("Error", "Not a font")
                 return
             self.temp_font_family = selected_font
+
         def change_theme():
             selected_theme = themes_combolabel.combobox.get()
             if selected_theme not in themes:
-                messagebox.showerror("Error","Not a Theme")
-            self.theme = selected_theme
-            self.current_theme = Themes.ALL[self.theme]
+                messagebox.showerror("Error", "Not a Theme")
+            self.CONFIG.theme_name = selected_theme
+            self.current_theme = Themes.ALL[self.CONFIG.theme_name]
             self.background_color = self.current_theme.background
             self.button_color = self.current_theme.button
             self.text_color = self.current_theme.text
             self.toplevel_color = self.current_theme.top_level
             self.apply_theme()
-            
-            
+
         def apply_changes():
             change_font()
             change_theme()
-            new_kdf =  defualt_kdf_combolabel.combobox.get()
+            new_kdf = defualt_kdf_combolabel.combobox.get()
             with open("config.json", "r") as file:
                 data = json.load(file)
-            self.items_per_page = self.temp_items_per_page
-            self.font_family = self.temp_font_family
-            data["config"]["items_per_page"] = self.items_per_page
-            data["config"]["font_family"] = self.font_family
-            data["config"]["theme"]=self.theme
-            
+            self.CONFIG.items_per_page = self.temp_items_per_page
+            self.CONFIG.font_family = self.temp_font_family
+            data["config"]["items_per_page"] = self.CONFIG.items_per_page
+            data["config"]["font_family"] = self.CONFIG.font_family
+            data["config"]["theme"] = self.CONFIG.theme_name
+
             data["config"]["Kdf_type"] = new_kdf
-            self.default_kdf = new_kdf
+            self.CONFIG.default_kdf = new_kdf
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
             self.apply_fonts(self.subframe_1)
@@ -248,56 +251,69 @@ class App:
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
-        self.render_pages(0,self.vault_names,self.subframe_2,self.open_vault_config,self.new_vault)
-        
+        self.render_pages(
+            0, self.vault_names, self.subframe_2, self.open_vault_config, self.new_vault
+        )
+
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
-        
-        
+
         self.apply_fonts(self.subframe_1)
-        
-       
-       
-    def open_vault_config(self,vault_name:str):
+
+    def open_vault_config(self, vault_name: str):
         vault = self.vaults[vault_name]
-        key_location =vault["directories"][0]
-            
+        key_location = vault["directories"][0]
+
         if vault["type"] == "local":
-                
             save_file_location = vault["directories"][1]
         elif vault["type"] == "server":
-            messagebox.showerror("Error","server not yet implemented")
+            messagebox.showerror("Error", "server not yet implemented")
             return
         else:
             return
+
         def delete_vault():
-            if simpledialog.askstring("confirm deletion","type vault name to delete") != vault_name:
-                messagebox.showerror("Deletion canceled","Vault name not matching")
+            if (
+                simpledialog.askstring("confirm deletion", "type vault name to delete")
+                != vault_name
+            ):
+                messagebox.showerror("Deletion canceled", "Vault name not matching")
                 return
             Path(save_file_location).unlink()
             Path(key_location).unlink()
-            with open("config.json","r") as file:
+            with open("config.json", "r") as file:
                 config = json.load(file)
             del config["Vaults"][vault_name]
             self.vaults = config["Vaults"]
             self.vault_names.remove(vault_name)
-            with open("config.json", "w")as file:
-                json.dump(config,file, indent=2)
+            with open("config.json", "w") as file:
+                json.dump(config, file, indent=2)
             self.Load_config()
-        tk.Button(self.subframe_3,text="delete",command=delete_vault).place(relheight=0.1,relwidth=1,relx=0,rely=0)
-        
+
+        tk.Button(self.subframe_3, text="delete", command=delete_vault).place(
+            relheight=0.1, relwidth=1, relx=0, rely=0
+        )
+
         self.apply_fonts(self.subframe_3)
-            
+
     def load_vaults(self, page: int):
         self.selected_vault = ""
-        self.render_pages(0, self.vault_names, self.subframe_1, self.open_vault,self.new_vault)
+        self.render_pages(
+            0, self.vault_names, self.subframe_1, self.open_vault, self.new_vault
+        )
 
     def render_pages(
-        self, page: int, items: list[str], frame: tk.Frame, function: Callable,add_command:Callable,filter_str=None
+        self,
+        page: int,
+        items: list[str],
+        frame: tk.Frame,
+        function: Callable,
+        add_command: Callable,
+        filter_str=None,
     ):
         self.clear_subframes(frame)
-        start = page * self.items_per_page
-        end = start + self.items_per_page
-        btn_size = 1 / (self.items_per_page + 3)
+        start = page * self.CONFIG.items_per_page
+        end = start + self.CONFIG.items_per_page
+        btn_size = 1 / (self.CONFIG.items_per_page + 3)
         filtered_items = []
         if filter_str:
             for item in items:
@@ -315,32 +331,34 @@ class App:
                 case self.add_service:
                     btn_text = "add service"
                 case _:
-                    messagebox.showerror("Error","wrong add_command function given ")
+                    messagebox.showerror("Error", "wrong add_command function given ")
                     return
-            new_x_button = tk.Button(
-                        frame, text=btn_text, command=add_command
-                    )
-            new_x_button.place(
-                        relx=0, rely=0, relwidth=1, relheight=btn_size
-                    )
+            new_x_button = tk.Button(frame, text=btn_text, command=add_command)
+            new_x_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
             self.fit_font(new_x_button, text=btn_text)
         else:
             up_button = tk.Button(
                 frame,
                 text="page up",
                 command=lambda new_page=page - 1: self.render_pages(
-                    new_page, items, frame, function,add_command
+                    new_page, items, frame, function, add_command
                 ),
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
             self.fit_font(up_button, "page up")
         search_entry = tk.Entry(frame)
         if filter_str:
-            search_entry.insert(0,filter_str)
-        search_entry.place(relx=0,rely=btn_size,relheight=btn_size,relwidth=0.8)
+            search_entry.insert(0, filter_str)
+        search_entry.place(relx=0, rely=btn_size, relheight=btn_size, relwidth=0.8)
+
         def filtered_search():
-            self.render_pages(page,items,frame,function,add_command,search_entry.get())
-        tk.Button(frame,command=filtered_search,text="Search").place(relx=0.8,rely=btn_size,relheight=btn_size,relwidth=0.2)
+            self.render_pages(
+                page, items, frame, function, add_command, search_entry.get()
+            )
+
+        tk.Button(frame, command=filtered_search, text="Search").place(
+            relx=0.8, rely=btn_size, relheight=btn_size, relwidth=0.2
+        )
         for i, item in enumerate(current_items):
             if frame == self.subframe_3:
                 text_name = f"{item[0]} {str(item[1])}"
@@ -350,7 +368,7 @@ class App:
                 frame, text=str(text_name), command=lambda it=item: function(it)
             )
             button.place(
-                relheight=btn_size, relx=0, relwidth=1, rely=2*btn_size + btn_size * i
+                relheight=btn_size, relx=0, relwidth=1, rely=2 * btn_size + btn_size * i
             )
             self.fit_font(button, text_name)
         if end < len(items):
@@ -358,7 +376,7 @@ class App:
                 frame,
                 text="page down",
                 command=lambda new_page=page + 1: self.render_pages(
-                    new_page, items, frame, function,add_command
+                    new_page, items, frame, function, add_command
                 ),
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
@@ -424,8 +442,8 @@ class App:
                 "directories": [key_dir, save_dir],
                 "type": "local",
             }
-            with open("config.json","w") as file:
-                json.dump(data,file,indent=2)
+            with open("config.json", "w") as file:
+                json.dump(data, file, indent=2)
             save_path = Path(save_dir)
             try:
                 if save_path.stat().st_size > 0:
@@ -433,14 +451,13 @@ class App:
                         save = json.load(file)
                 else:
                     save = {}
-                
+
             except json.JSONDecodeError:
                 save = {}
             save.setdefault("services", {})
             with open(save_path, "w", encoding="utf-8") as file:
                 json.dump(save, file, indent=2)
-            
-            
+
             key_path = Path(key_dir)
             content = key_path.read_text().strip()
             try:
@@ -449,9 +466,8 @@ class App:
                     key = os.urandom(32)
                     key_path.write_text(key.hex())
             except binascii.Error:
-                messagebox.showerror("Error","not a valid hex string")
-            
-                
+                messagebox.showerror("Error", "not a valid hex string")
+
             new_vault_popup.destroy()
             self.vaults[vault_name] = {
                 "directories": [key_dir, save_dir],
@@ -483,11 +499,13 @@ class App:
                 services = list(data["services"].keys())
 
         elif vault["type"] == "server":
-            messagebox.showerror("Error","server not yet implemented")
+            messagebox.showerror("Error", "server not yet implemented")
         else:
-            messagebox.showerror("Error",f"{vault[type]} is not a valid save type.")
+            messagebox.showerror("Error", f"{vault[type]} is not a valid save type.")
 
-        self.render_pages(0, services, self.subframe_2, self.open_service,self.add_service)
+        self.render_pages(
+            0, services, self.subframe_2, self.open_service, self.add_service
+        )
 
     def add_service(self):
         new_service_popup = tk.Toplevel(
@@ -543,7 +561,7 @@ class App:
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.render_pages(0, Mails, self.subframe_3, self.open_mail,self.add_mail)
+            self.render_pages(0, Mails, self.subframe_3, self.open_mail, self.add_mail)
 
     def open_mail(self, name: str):
         mail_popup = tk.Toplevel(self.root)
@@ -575,12 +593,9 @@ class App:
             self.root.clipboard_clear()
             self.root.clipboard_append(decrypted_password)
             self.root.after(
-                            30000,
-                            lambda: (
-                                self.root.clipboard_clear(),
-                                self.root.clipboard_append("")
-                            )
-                        )
+                30000,
+                lambda: (self.root.clipboard_clear(), self.root.clipboard_append("")),
+            )
 
         tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
             relx=0.3, rely=0.15, relheight=0.15
@@ -600,23 +615,23 @@ class App:
             tk.Label(new_data_popup, text="new Password").place(
                 relx=0, relheight=0.1, rely=0.2
             )
+
             def generate_password():
-                length = random.randint(0,8) +30
+                length = random.randint(0, 8) + 30
                 alphabet = string.ascii_letters + string.digits + string.punctuation
-                password = ''.join(secrets.choice(alphabet) for _ in range(length))
-                new_password_entry.delete(0,tk.END)
-                new_password_entry.insert(0,password)
-                
-                
-            tk.Button(new_data_popup,text="generate password",command=generate_password).place(
-                relx=0.5,relheight=0.1,rely=0.2
-            )
+                password = "".join(secrets.choice(alphabet) for _ in range(length))
+                new_password_entry.delete(0, tk.END)
+                new_password_entry.insert(0, password)
+
+            tk.Button(
+                new_data_popup, text="generate password", command=generate_password
+            ).place(relx=0.5, relheight=0.1, rely=0.2)
             new_password_entry.place(relx=0, relheight=0.1, rely=0.3, relwidth=1)
 
             new_master_entry = tk.Entry(new_data_popup)
             tk.Label(new_data_popup, text="new Master password").place(
                 relx=0, relheight=0.1, rely=0.4
-            )   
+            )
             new_master_entry.place(relx=0, rely=0.5, relheight=0.1, relwidth=1)
 
             def call_encryption():
@@ -658,19 +673,23 @@ class App:
         self.scale_toplevel(add_mail_popup, 0.5)
 
         name_entry = tk.Entry(add_mail_popup)
-        tk.Label(add_mail_popup, text="Email").place(relx=0, rely=0, relheight=0.15,relwidth=0.2)
+        tk.Label(add_mail_popup, text="Email").place(
+            relx=0, rely=0, relheight=0.15, relwidth=0.2
+        )
         name_entry.place(relheight=0.15, relx=0, rely=0.15, relwidth=0.4)
 
         password_entry = tk.Entry(add_mail_popup)
+
         def generate_password():
-                length = random.randint(0,8) +16
-                alphabet = string.ascii_letters + string.digits + string.punctuation
-                password = ''.join(secrets.choice(alphabet) for _ in range(length))
-                password_entry.delete(0,tk.END)
-                password_entry.insert(0,password)
-        tk.Button(add_mail_popup,text="generate password",command=generate_password).place(
-            relx=0.5,relheight=0.15,rely=0.3
-        )
+            length = random.randint(0, 8) + 16
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            password = "".join(secrets.choice(alphabet) for _ in range(length))
+            password_entry.delete(0, tk.END)
+            password_entry.insert(0, password)
+
+        tk.Button(
+            add_mail_popup, text="generate password", command=generate_password
+        ).place(relx=0.5, relheight=0.15, rely=0.3)
         tk.Label(add_mail_popup, text="Password").place(
             relx=0, relheight=0.15, rely=0.3
         )
@@ -678,15 +697,19 @@ class App:
 
         master_password_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup, text="Masterpassword").place(
-            relx=0, rely=0.6, relheight=0.1,relwidth=0.3
+            relx=0, rely=0.6, relheight=0.1, relwidth=0.3
         )
         master_password_entry.place(relx=0, rely=0.7, relheight=0.1, relwidth=0.45)
         confirm_master_password_entry = tk.Entry(add_mail_popup)
-        confirm_master_password_entry.place(relx=0.5,rely=0.7,relheight=0.1,relwidth=0.5)
-        tk.Label(add_mail_popup,text="Confirm Masterpassword").place(relheight=0.1,relx=0.5,relwidth=0.3,rely=0.6)
+        confirm_master_password_entry.place(
+            relx=0.5, rely=0.7, relheight=0.1, relwidth=0.5
+        )
+        tk.Label(add_mail_popup, text="Confirm Masterpassword").place(
+            relheight=0.1, relx=0.5, relwidth=0.3, rely=0.6
+        )
 
         def add_entry():
-            
+
             name = name_entry.get()
             service = self.selected_service
             vault = self.selected_vault
@@ -694,27 +717,14 @@ class App:
             master = master_password_entry.get()
             confirmation_master = confirm_master_password_entry.get()
             if not all([name, password, vault, service, master, confirmation_master]):
-                messagebox.showerror(
-                    "Error",
-                    "All entrys must be filled to proceed"
-                    )
-                return  
-            elif master != confirmation_master:
-                messagebox.showerror(
-                    "Error",
-                    "Master passwords not matching"
-                )
+                messagebox.showerror("Error", "All entrys must be filled to proceed")
                 return
-            
+            elif master != confirmation_master:
+                messagebox.showerror("Error", "Master passwords not matching")
+                return
+
             encrypt(
-                    master.encode(),
-                    password.encode(),
-                    service, 
-                    vault, 
-                    name,
-                    1, 
-                    False, 
-                    name
+                master.encode(), password.encode(), service, vault, name, 1, False, name
             )
             add_mail_popup.destroy()
             self.open_service(self.selected_service)
