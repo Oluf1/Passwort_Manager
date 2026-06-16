@@ -15,7 +15,8 @@ import secrets
 import string
 import random
 from dataclasses import dataclass
-
+from managers import ConfigManager
+from managers import Themes
 
 
 @dataclass(frozen=True)
@@ -25,34 +26,7 @@ class Theme:
     text: str
     top_level: str
 
-class Themes:
-    DARK = Theme(
-        background="#1E1E1E",
-        button="#2D2D2D",
-        text="#FFFFFF",
-        top_level="#252526",
-    )
 
-    LIGHT = Theme(
-        background="#F3F3F3",
-        button="#E1E1E1",
-        text="#111111",
-        top_level="#FFFFFF",
-    )
-
-    METRO = Theme(
-        background="#202020",
-        button="#0078D7",
-        text="#FFFFFF",
-        top_level="#2B2B2B",
-    )
-    
-    ALL = {
-        "dark": DARK,
-        "light": LIGHT,
-        "metro": METRO,
-    }
-    
     
 class Label_combobox:
     def __init__(self,widget_master:tk.Frame,text:str,combobx_values:list,default,height:float,y_pos:float) -> None: 
@@ -66,7 +40,7 @@ class Label_combobox:
         self.combobox.set(default)
         self.combobox.place(relheight=combobx_height,rely=combobx_ypos,relwidth=1)
         
-class App:
+class App:  
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Password Manager")
@@ -79,12 +53,6 @@ class App:
             self.vault_names.append(name)
         self.selected_vault = ""
         self.selected_service = ""
-        with open("config.json") as file:
-            config = json.load(file)["config"]
-            self.items_per_page = config["items_per_page"]
-            self.font_family = config["font_family"]
-            self.theme = config["theme"]
-            self.selected_kdf = config["Kdf_type"] 
             
         self.supported_kdfs = ["Argon2","PBKDF2"]
         self.current_theme = Themes.ALL[self.theme]
@@ -97,6 +65,16 @@ class App:
         
         
             
+        
+        self.apply_theme()
+        self.load_start_ui()
+        self.root.mainloop()
+        
+    def on_start(self):
+        self.get_config()
+        self.create_frames()
+        
+    def create_frames(self):
         border_width = 2
 
         self.main_frame = tk.Frame(self.root, borderwidth=border_width, relief="solid")
@@ -109,9 +87,16 @@ class App:
         self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
 
         self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
-        self.apply_theme()
-        self.load_start_ui()
-        self.root.mainloop()
+        
+    def get_config(self):
+        self.config_manager = ConfigManager()
+        self.items_per_page = self.config_manager.items_per_page
+        self.theme = self.config_manager.theme_name
+        self.default_kdf = self.config_manager.default_kdf
+        self.font_family = self.config_manager.font_family
+    def get_themes(self):
+        themes = Themes()
+    
     def apply_theme(self):
         for frame in self.subframe_list:
             frame.configure(bg=self.background_color)
@@ -210,7 +195,7 @@ class App:
         
         themes_combolabel = Label_combobox(self.subframe_1,"Theme",themes,self.theme,0.15,0.35)
          
-        defualt_kdf_combolabel = Label_combobox(self.subframe_1,"Default Kdf",self.supported_kdfs,self.selected_kdf,0.15,0.5)
+        defualt_kdf_combolabel = Label_combobox(self.subframe_1,"Default Kdf",self.supported_kdfs,self.default_kdf,0.15,0.5)
 
         def change_items_per_page(change: int):
             self.temp_items_per_page += change
@@ -252,7 +237,7 @@ class App:
             data["config"]["theme"]=self.theme
             
             data["config"]["Kdf_type"] = new_kdf
-            self.selected_kdf = new_kdf
+            self.default_kdf = new_kdf
             with open("config.json", "w") as file:
                 json.dump(data, file, indent=4)
             self.apply_fonts(self.subframe_1)
