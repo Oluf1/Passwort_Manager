@@ -1,17 +1,7 @@
 {
-    "Vaults": {
-        "Vault1": {
-            "directories": [
-                "examplekey.txt",
-                "exampledata.json"
-            ],
-            "type": "local"
-        }
-    },
-    "config": {
-        "items_per_page": 18,
-        "font_family": "Arial",
-        "theme": "light",
-        "Kdf_type": "Argon2"
-    }
+
+    "items_per_page": 20,
+    "font_family": "Arial",
+    "theme": "light",
+    "Kdf_type": "Argon2"
 }

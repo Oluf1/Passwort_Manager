@@ -1,0 +1,9 @@
+{
+"Vault1": {
+    "directories": [
+        "examplekey.txt",
+        "exampledata.json"
+            ],
+        "type": "local"
+        }
+    }
