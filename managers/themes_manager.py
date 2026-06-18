@@ -33,3 +33,26 @@ class Themes:
         "light": LIGHT,
         "metro": METRO,
     }
+class ThemeManager:
+    def __init__(self) -> None:
+        self.current_theme = Themes.ALL["light"]#This is the Default Theme
+    def change_theme(self,new_theme):
+        if new_theme in Themes.ALL.values():
+            self.current_theme = new_theme
+        else:
+            print("Theme not found")
+    @property
+    def background(self):
+        return self.current_theme.background
+    @property
+    def button_color(self):
+        return self.current_theme.button
+    @property 
+    def text(self):
+        return self.current_theme.text
+    @property 
+    def top_level_color(self):
+        return self.current_theme.top_level
+    @property
+    def theme_keys(self):
+        return Themes.ALL.keys()

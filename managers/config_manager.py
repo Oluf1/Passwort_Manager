@@ -12,6 +12,8 @@ class ConfigManager:
         return self._config_data
 
     def save(self, data):
+        assert self._config_data is not None
+        data = self._config_data
         with open(self.path, "w") as f:
             json.dump(data, f, indent=4)
         self._config_data = data  # keep cache in sync
@@ -22,7 +24,7 @@ class ConfigManager:
             self._config_data = self.load()
 
         assert self._config_data is not None
-        return self._config_data["config"]
+        return self._config_data
         
 
     @property

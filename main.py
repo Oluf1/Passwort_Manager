@@ -1,21 +1,19 @@
-import json
-import tkinter as tk
-from tkinter import ttk
-import tkinter.font as tkfont
-from typing import Callable
-from tkinter import messagebox
-from tkinter import filedialog
-from tkinter import simpledialog
-from decrypt import decrypt
-from encrypt import encrypt
-from pathlib import Path
 import binascii
+import json
 import os
+import random
 import secrets
 import string
-import random
-from managers import ConfigManager
-from managers import Themes
+import tkinter as tk
+import tkinter.font as tkfont
+from pathlib import Path
+from tkinter import filedialog, messagebox, simpledialog, ttk
+from typing import Callable
+
+from decrypt import decrypt
+from encrypt import encrypt
+from managers import ConfigManager, ThemeManager
+
 
 class Label_combobox:
     def __init__(
@@ -42,7 +40,7 @@ class Label_combobox:
 
 class App:
     CONFIG = ConfigManager()
-    THEMES = Themes()
+    THEME_MANAGER = ThemeManager()
 
     def __init__(self):
         self.root = tk.Tk()
@@ -58,20 +56,15 @@ class App:
         self.selected_service = ""
 
         self.supported_kdfs = ["Argon2", "PBKDF2"]
-        self.current_theme = Themes.ALL[self.CONFIG.theme_name]
-        self.background_color = self.current_theme.background
-        self.button_color = self.current_theme.button
-        self.text_color = self.current_theme.text
-        self.toplevel_color = self.current_theme.top_level
+        self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
 
-        self.root.configure(bg=self.background_color)
+        self.root.configure(bg=self.THEME_MANAGER.background)
 
         self.apply_theme()
         self.load_start_ui()
         self.root.mainloop()
 
     def setup(self):
-
         self.create_frames()
 
     def create_frames(self):
@@ -90,8 +83,8 @@ class App:
 
     def apply_theme(self):
         for frame in self.subframe_list:
-            frame.configure(bg=self.background_color)
-        self.main_frame.config(bg=self.background_color)
+            frame.configure(bg=self.THEME_MANAGER.background)
+        self.main_frame.config(bg=self.THEME_MANAGER.background)
 
     def fit_font(self, widget, text: str):
         try:
@@ -124,7 +117,7 @@ class App:
 
             if "text" in widget.keys():
                 widget.config(
-                    font=font, text=text, fg=self.text_color, bg=self.button_color
+                    font=font, text=text, fg=self.THEME_MANAGER.text, bg=self.THEME_MANAGER.button_color
                 )
 
         except Exception as e:
@@ -173,7 +166,7 @@ class App:
         change_fonts_combolabel = fonts_combolabel_obj.combobox
 
         items_per_page_label = tk.Label(
-            self.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 2}"
+            self.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 3}"
         )
         tk.Button(
             self.subframe_1,
@@ -185,7 +178,7 @@ class App:
             text="-",
             command=lambda change=-1: change_items_per_page(change),
         ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
-        themes = list(Themes.ALL.keys())
+        themes = list(self.THEME_MANAGER.theme_keys)
 
         themes_combolabel = Label_combobox(
             self.subframe_1, "Theme", themes, self.CONFIG.theme_name, 0.15, 0.35
@@ -220,29 +213,19 @@ class App:
             if selected_theme not in themes:
                 messagebox.showerror("Error", "Not a Theme")
             self.CONFIG.theme_name = selected_theme
-            self.current_theme = Themes.ALL[self.CONFIG.theme_name]
-            self.background_color = self.current_theme.background
-            self.button_color = self.current_theme.button
-            self.text_color = self.current_theme.text
-            self.toplevel_color = self.current_theme.top_level
+            self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
             self.apply_theme()
 
         def apply_changes():
             change_font()
             change_theme()
             new_kdf = defualt_kdf_combolabel.combobox.get()
-            with open("config.json", "r") as file:
-                data = json.load(file)
+
             self.CONFIG.items_per_page = self.temp_items_per_page
             self.CONFIG.font_family = self.temp_font_family
-            data["config"]["items_per_page"] = self.CONFIG.items_per_page
-            data["config"]["font_family"] = self.CONFIG.font_family
-            data["config"]["theme"] = self.CONFIG.theme_name
-
-            data["config"]["Kdf_type"] = new_kdf
             self.CONFIG.default_kdf = new_kdf
-            with open("config.json", "w") as file:
-                json.dump(data, file, indent=4)
+            
+            self.CONFIG.save
             self.apply_fonts(self.subframe_1)
             self.Load_config()
             self.load_start_ui()
@@ -744,7 +727,7 @@ class App:
         x = int((screen_width - width) * 0.5)
         y = int((screen_height - height) * 0.5)
         window.geometry(f"{width}x{height}+{x}+{y}")
-        window.config(bg=self.background_color)
+        window.config(bg=self.THEME_MANAGER.top_level_color)
 
 
 if __name__ == "__main__":
