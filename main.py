@@ -109,14 +109,15 @@ class App:
         except tk.TclError:
             self.root.attributes("-zoomed", True)
 
-        name_label = tk.Label(self.main_frame, text="Password Manager")
+        tk.Label(
+            self.main_frame,text="Password Manager").place(
+            relx=0, rely=0, relwidth=1,relheight=0.1)
         open_vaults_button = tk.Button(
             self.main_frame,
             text="Vaults",
             bg="royalblue",
             command=lambda: self.load_vaults(0),
         )
-        name_label.place(relx=0, rely=0, relwidth=0.95, relheight=0.1)
         config_button = tk.Button(
             self.main_frame, text="config", bg="lightgrey", command=self.Load_config
         )
