@@ -7,12 +7,12 @@ import string
 import tkinter as tk
 import tkinter.font as tkfont
 from pathlib import Path
-from tkinter import filedialog, messagebox, simpledialog, ttk
+from tkinter import filedialog, messagebox, simpledialog
 from typing import Callable
 
 from decrypt import decrypt
 from encrypt import encrypt
-from managers import ConfigManager, ThemeManager
+from managers import ConfigManager, ThemeManager,VaultManager
 from UI import Label_combobox
 
 
@@ -20,17 +20,13 @@ from UI import Label_combobox
 class App:
     CONFIG = ConfigManager()
     THEME_MANAGER = ThemeManager()
-
+    VAULTMANAGER = VaultManager()
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Password Manager")
         self.setup()
 
-        with open("config.json") as f:
-            self.vaults = json.load(f)["Vaults"]
-        self.vault_names = []
-        for name in self.vaults:
-            self.vault_names.append(name)
+        self.VAULTMANAGER.load_vaults()
         self.selected_vault = ""
         self.selected_service = ""
 
@@ -214,7 +210,7 @@ class App:
         )
 
         self.render_pages(
-            0, self.vault_names, self.subframe_2, self.open_vault_config, self.new_vault
+            0, self.VAULTMANAGER.get_vault_names(), self.subframe_2, self.open_vault_config, self.new_vault
         )
 
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
@@ -222,12 +218,12 @@ class App:
         self.apply_fonts(self.subframe_1)
 
     def open_vault_config(self, vault_name: str):
-        vault = self.vaults[vault_name]
+        vault = self.VAULTMANAGER.vaults[vault_name]
         key_location = vault["directories"][0]
-
-        if vault["type"] == "local":
+        
+        if vault.vault_type == "local":
             save_file_location = vault["directories"][1]
-        elif vault["type"] == "server":
+        elif vault.vault_type == "server":
             messagebox.showerror("Error", "server not yet implemented")
             return
         else:
@@ -242,13 +238,7 @@ class App:
                 return
             Path(save_file_location).unlink()
             Path(key_location).unlink()
-            with open("config.json", "r") as file:
-                config = json.load(file)
-            del config["Vaults"][vault_name]
-            self.vaults = config["Vaults"]
-            self.vault_names.remove(vault_name)
-            with open("config.json", "w") as file:
-                json.dump(config, file, indent=2)
+            self.VAULTMANAGER.delete_vault(vault_name)
             self.Load_config()
 
         tk.Button(self.subframe_3, text="delete", command=delete_vault).place(
@@ -260,7 +250,7 @@ class App:
     def load_vaults(self, page: int):
         self.selected_vault = ""
         self.render_pages(
-            0, self.vault_names, self.subframe_1, self.open_vault, self.new_vault
+            0, self.VAULTMANAGER.get_vault_names(), self.subframe_1, self.open_vault, self.new_vault
         )
 
     def render_pages(
@@ -380,12 +370,7 @@ class App:
                 messagebox.showerror("Error", "Server saving not yet implemented")
                 return
             vault_name = vault_name_entry.get()
-            if vault_name in self.vault_names:
-                messagebox.showerror(
-                    "Error", "Vault name already exists choose another"
-                )
-                return
-            save_dir = filedialog.askopenfilename(
+            data_dir = filedialog.askopenfilename(
                 initialdir="/",
                 title="select save directory",
                 filetypes=(("json files", "*.json*"),),
@@ -395,18 +380,11 @@ class App:
                 title="select key directory",
                 filetypes=(("Text files", "*.txt*"),),
             )
-            if not save_dir or not key_dir:
+            if not data_dir or not key_dir:
                 messagebox.showerror("Error", "No directory selected")
                 return
-            with open("config.json") as config:
-                data = json.load(config)
-            data["Vaults"][vault_name] = {
-                "directories": [key_dir, save_dir],
-                "type": "local",
-            }
-            with open("config.json", "w") as file:
-                json.dump(data, file, indent=2)
-            save_path = Path(save_dir)
+            self.VAULTMANAGER.create_vault(vault_name,key_dir,data_dir)
+            save_path = Path(data_dir)
             try:
                 if save_path.stat().st_size > 0:
                     with open(save_path, "r", encoding="utf-8") as file:
@@ -429,13 +407,7 @@ class App:
                     key_path.write_text(key.hex())
             except binascii.Error:
                 messagebox.showerror("Error", "not a valid hex string")
-
             new_vault_popup.destroy()
-            self.vaults[vault_name] = {
-                "directories": [key_dir, save_dir],
-                "type": "local",
-            }
-            self.vault_names.append(vault_name)
             self.load_vaults(0)
 
         tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
@@ -449,7 +421,7 @@ class App:
         self.selected_vault = name
         self.clear_subframes(self.subframe_2)
 
-        vault = self.vaults[name]
+        vault = self.VAULTMANAGER.vaults[name]
         services: list[str] = []
 
         if vault["type"] == "local":
@@ -485,7 +457,7 @@ class App:
             new_name = name_entry.get()
 
             services: list[str] = []
-            vault = self.vaults[self.selected_vault]
+            vault = self.VAULTMANAGER.vaults[self.selected_vault]
             if vault["type"] == "local":
                 location = vault["directories"][1]
                 with open(location) as f:
@@ -514,7 +486,7 @@ class App:
 
         self.clear_subframes(self.subframe_3)
 
-        vault = self.vaults[self.selected_vault]
+        vault = self.VAULTMANAGER.vaults[self.selected_vault]
         Mails: list = []
         if vault["type"] == "local":
             location = vault["directories"][1]
