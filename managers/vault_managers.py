@@ -21,17 +21,18 @@ class VaultManager:
             data = json.load(file)
 
         for name in data:
-            vault_type = data["type"]
-            key_path = data["directories"][0]
-            data_path = data["directories"][1]
+            vault_type = data[name]["type"]
+            key_path = data[name]["directories"][0]
+            data_path = data[name]["directories"][1]
             
             self.vaults[name] = Vault(name,vault_type,key_path,data_path)
 
     def save_vaults(self):
-        with open(self.config_file, "r") as file:
-            data = json.load(file)
-
-        data = self.vaults
+        data = {}
+        for vault_name in self.vaults:
+            vault = self.vaults[vault_name]
+            data[vault_name] = {"directories":[vault.key_path,vault.data_path],"type":vault.vault_type}
+        
 
         with open(self.config_file, "w") as file:
             json.dump(data, file, indent=2)
@@ -55,6 +56,5 @@ class VaultManager:
 
         Path(vault.key_path).unlink(missing_ok=True)
         Path(vault.data_path).unlink(missing_ok=True)
-
         del self.vaults[name]
         self.save_vaults()

@@ -11,7 +11,7 @@ class ConfigManager:
             self._config_data = json.load(f)
         return self._config_data
 
-    def save(self, data):
+    def save(self):
         assert self._config_data is not None
         data = self._config_data
         with open(self.path, "w") as f:

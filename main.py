@@ -45,7 +45,7 @@ class App:
     def create_frames(self):
         border_width = 2
 
-        self.main_frame = tk.Frame(self.root, borderwidth=border_width, relief="solid")
+        self.main_frame =   tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
         self.subframe_1 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
         self.subframe_1.place(relheight=1, relwidth=0.15, relx=0.2, rely=0)
@@ -172,7 +172,7 @@ class App:
             self.temp_items_per_page += change
             self.temp_items_per_page = max(3, min(self.temp_items_per_page, 20))
             items_per_page_label.config(
-                text=f"items per page: {self.temp_items_per_page + 2}"
+                text=f"items per page: {self.temp_items_per_page + 3}"
             )
             items_per_page_label.update_idletasks()
 
@@ -200,7 +200,7 @@ class App:
             self.CONFIG.font_family = self.temp_font_family
             self.CONFIG.default_kdf = new_kdf
             
-            self.CONFIG.save
+            self.CONFIG.save()
             self.apply_fonts(self.subframe_1)
             self.Load_config()
             self.load_start_ui()
@@ -219,10 +219,10 @@ class App:
 
     def open_vault_config(self, vault_name: str):
         vault = self.VAULTMANAGER.vaults[vault_name]
-        key_location = vault["directories"][0]
+        key_location = vault.key_path
         
         if vault.vault_type == "local":
-            save_file_location = vault["directories"][1]
+            save_file_location = vault.data_path
         elif vault.vault_type == "server":
             messagebox.showerror("Error", "server not yet implemented")
             return
@@ -283,7 +283,7 @@ class App:
                 case self.add_service:
                     btn_text = "add service"
                 case _:
-                    messagebox.showerror("Error", "wrong add_command function given ")
+                    messagebox.showerror("Error", f"wrong add_command function given: {add_command}")
                     return
             new_x_button = tk.Button(frame, text=btn_text, command=add_command)
             new_x_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
@@ -424,15 +424,15 @@ class App:
         vault = self.VAULTMANAGER.vaults[name]
         services: list[str] = []
 
-        if vault["type"] == "local":
-            location = vault["directories"][1]
+        if vault.vault_type == "local":
+            location = vault.data_path
 
             with open(location) as f:
                 data = json.load(f)
 
                 services = list(data["services"].keys())
 
-        elif vault["type"] == "server":
+        elif vault.vault_type == "server":
             messagebox.showerror("Error", "server not yet implemented")
         else:
             messagebox.showerror("Error", f"{vault[type]} is not a valid save type.")
@@ -458,7 +458,7 @@ class App:
 
             services: list[str] = []
             vault = self.VAULTMANAGER.vaults[self.selected_vault]
-            if vault["type"] == "local":
+            if vault.vault_type == "local":
                 location = vault["directories"][1]
                 with open(location) as f:
                     data = json.load(f)
@@ -488,8 +488,8 @@ class App:
 
         vault = self.VAULTMANAGER.vaults[self.selected_vault]
         Mails: list = []
-        if vault["type"] == "local":
-            location = vault["directories"][1]
+        if vault.vault_type == "local":
+            location = vault.data_path
             with open(location) as f:
                 data = json.load(f)
 
@@ -506,7 +506,7 @@ class App:
         tk.Label(mail_popup, text=f"service: {self.selected_service}").place(
             relx=0, rely=0, relheight=0.15
         )
-        password_Label = tk.Label(mail_popup, text="password: ****")
+        password_Label = tk.Label(mail_popup, text="password: *****")
         password_Label.place(relx=0, relheight=0.15, rely=0.15)
 
         def decrypt_password():

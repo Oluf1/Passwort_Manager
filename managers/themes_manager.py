@@ -35,10 +35,10 @@ class Themes:
     }
 class ThemeManager:
     def __init__(self) -> None:
-        self.current_theme = Themes.ALL["light"]#This is the Default Theme
+        pass
     def change_theme(self,new_theme):
-        if new_theme in Themes.ALL.values():
-            self.current_theme = new_theme
+        if new_theme in Themes.ALL.keys():
+            self.current_theme = Themes.ALL[new_theme]
         else:
             print("Theme not found")
     @property

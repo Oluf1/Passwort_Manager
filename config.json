@@ -1,7 +1,6 @@
 {
-
-    "items_per_page": 20,
+    "items_per_page": 16,
     "font_family": "Arial",
-    "theme": "light",
+    "theme": "metro",
     "Kdf_type": "Argon2"
 }
