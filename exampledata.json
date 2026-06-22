@@ -7,6 +7,7 @@
         "Nonce": "JW8ck0m2oq+AS7SW",
         "salt": "OxDRCEM1gy3UY6NJBhZdPQ==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "juM4cQlR/2b5BpgM4MUGYjEtbS3SpTOtjA==",
         "aad": "y8Z2SQhoDZcW5TsqfcUyIw==",
         "count": 1
@@ -17,6 +18,7 @@
         "Nonce": "tI8wPGYzFASwqYHJ",
         "salt": "bV6mrqRgjSjBv/NOtM6kjg==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "6uaYoZ2r9Ip//PLBKN3haCMZEuHDcLyFkCs=",
         "aad": "Vb4nptuaSvcWkWTstOTt3Q==",
         "count": 1
@@ -27,6 +29,7 @@
         "Nonce": "rdNUc7Bfcr7mKM6O",
         "salt": "c/uiYKrBo4xKsmflCV6XXw==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "/rHPpyw/7id0Z9OJjN8m/r9/c2sB2HU=",
         "aad": "CNFro//vBN1xjp7hLH/plw==",
         "count": 1
@@ -37,6 +40,7 @@
         "Nonce": "rTLQxG3GRHzxyqsm",
         "salt": "SbTnJ5KolbO+rJYyytqwow==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "PjSFEuWYJrkfewze/WqvsqeT5ljWFP0=",
         "aad": "KpG+uOpCS42axpCOFH1hHw==",
         "count": 1
@@ -49,6 +53,7 @@
         "Nonce": "oCvwdmSEpQgWRl8H",
         "salt": "eNGC3Ze3v8OIOCB0HvuE8Q==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "LI6CnoA1WWFRkk32gOwXqCbxgnDt",
         "aad": "w7FGrzUzj9nGXdNCps2PRg==",
         "count": 1
@@ -59,6 +64,7 @@
         "Nonce": "szyhlzWimkO3Whuo",
         "salt": "LJSeFSIFUPbx4lHyMA+/AQ==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "kY4cq9KPz7exZlyKLtn8gT34IOSPtbHXkFkKrLfQ",
         "aad": "PpMfuSZBqKbBFutrmyCyDw==",
         "count": 2
@@ -69,6 +75,7 @@
         "Nonce": "9voUinx5sA7JXHyx",
         "salt": "B2yP5328WGnsocH6U+MfPw==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "ciXs1FKE8kFddH693UQxmJB+v3DuWuk=",
         "aad": "9VYbh6P9Qa0qVvJSnPdzZQ==",
         "count": 3
@@ -81,6 +88,7 @@
         "Nonce": "13VFwoJVjPojJ8R+",
         "salt": "5BrpUd+pW2sgwrNsM5cZHQ==",
         "iterations": 1200000,
+        "Kdf_type": "PBKDF2",
         "ciphertext": "/l1rY7weytU662phlypdH1Fcijk/AJk=",
         "aad": "LUGhnXxE5CNEAo9Upgk56w==",
         "count": 1
