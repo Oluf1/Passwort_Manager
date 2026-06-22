@@ -4,7 +4,7 @@ import json
 class ConfigManager:
     def __init__(self, path="config.json"):
         self.path = path
-        self._config_data = None  # cache
+        self.load()  # cache
 
     def load(self):
         with open(self.path, "r") as f:

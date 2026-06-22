@@ -12,37 +12,38 @@ from typing import Callable
 
 from decrypt import decrypt
 from encrypt import encrypt
-from managers import ConfigManager, ThemeManager,VaultManager
+#from managers import ConfigManager, ThemeManager,VaultManager,
+import managers
 from UI import Label_combobox
 
 
 
 class App:
-    CONFIG = ConfigManager()
-    THEME_MANAGER = ThemeManager()
-    VAULTMANAGER = VaultManager()
+    CONFIG = managers.CONFIG
+    THEME_MANAGER = managers.THEME_MANAGER
+    VAULTMANAGER = managers.VAULT_MANAGER
+    FONT_MANAGER = managers.FONT_MANAGER
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Password Manager")
         self.setup()
 
-        self.VAULTMANAGER.load_vaults()
-        self.selected_vault = ""
-        self.selected_service = ""
 
-        self.supported_kdfs = ["Argon2", "PBKDF2"]
-        self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
-
-        self.root.configure(bg=self.THEME_MANAGER.background)
-
-        self.apply_theme()
-        self.load_start_ui()
         self.root.mainloop()
 
     def setup(self):
+        self.VAULTMANAGER.load_vaults() 
+        self.selected_vault = ""
+        self.selected_service = ""
+        self.supported_kdfs = ["Argon2", "PBKDF2"]
+        self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
+        
+        
         self.create_frames()
+        self.apply_theme()
+        self.load_start_ui()
 
-    def create_frames(self):
+    def create_frames(self): #KEEP
         border_width = 2
 
         self.main_frame =   tk.Frame(self.root, borderwidth=border_width, relief="solid")
@@ -56,52 +57,14 @@ class App:
 
         self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
 
-    def apply_theme(self):
+    def apply_theme(self):#KEEP
         for frame in self.subframe_list:
             frame.configure(bg=self.THEME_MANAGER.background)
         self.main_frame.config(bg=self.THEME_MANAGER.background)
 
-    def fit_font(self, widget, text: str):
-        try:
-            widget.update_idletasks()
-            widget_width = widget.winfo_width()
-            widget_height = widget.winfo_height()
+    
 
-            max_size = 100
-            min_size = 1
-            low = min_size
-            high = max_size
-            best = min_size
 
-            font = tkfont.Font(family=self.CONFIG.font_family, size=1)
-
-            while low <= high:
-                middle = (low + high) // 2
-                font.config(size=middle)
-                text_width = font.measure(text)
-                text_height = font.metrics("linespace")
-                usable_width = widget_width * 0.8
-
-                if text_width <= usable_width and text_height <= widget_height:
-                    best = middle
-                    low = middle + 1
-                else:
-                    high = middle - 1
-
-            font.configure(size=best)
-
-            if "text" in widget.keys():
-                widget.config(
-                    font=font, text=text, fg=self.THEME_MANAGER.text, bg=self.THEME_MANAGER.button_color
-                )
-
-        except Exception as e:
-            messagebox.showerror("Error in fit_font", str(e))
-
-    def apply_fonts(self, parent):
-        for widget in parent.winfo_children():
-            if "text" in widget.keys():
-                self.fit_font(widget, widget["text"])
 
     def load_start_ui(self):
         try:
@@ -127,7 +90,7 @@ class App:
             relheight=0.1,
         )
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
-        self.root.after(10, lambda: self.apply_fonts(self.main_frame))
+        self.root.after(10, lambda: self.FONT_MANAGER.apply_fonts(self.main_frame))
 
     def Load_config(self):
         self.temp_items_per_page = self.CONFIG.items_per_page
@@ -201,7 +164,7 @@ class App:
             self.CONFIG.default_kdf = new_kdf
             
             self.CONFIG.save()
-            self.apply_fonts(self.subframe_1)
+            self.FONT_MANAGER.apply_fonts(self.subframe_1)
             self.Load_config()
             self.load_start_ui()
 
@@ -215,7 +178,7 @@ class App:
 
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
 
-        self.apply_fonts(self.subframe_1)
+        self.FONT_MANAGER.apply_fonts(self.subframe_1)
 
     def open_vault_config(self, vault_name: str):
         vault = self.VAULTMANAGER.vaults[vault_name]
@@ -245,7 +208,7 @@ class App:
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
-        self.apply_fonts(self.subframe_3)
+        self.FONT_MANAGER.apply_fonts(self.subframe_3)
 
     def load_vaults(self, page: int):
         self.selected_vault = ""
@@ -297,7 +260,7 @@ class App:
                 ),
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            self.fit_font(up_button, "page up")
+            self.FONT_MANAGER.fit_font(up_button, "page up")
         search_entry = tk.Entry(frame)
         if filter_str:
             search_entry.insert(0, filter_str)
@@ -322,7 +285,7 @@ class App:
             button.place(
                 relheight=btn_size, relx=0, relwidth=1, rely=2 * btn_size + btn_size * i
             )
-            self.fit_font(button, text_name)
+            self.FONT_MANAGER.fit_font(button, text_name)
         if end < len(items):
             down_button = tk.Button(
                 frame,
@@ -332,7 +295,7 @@ class App:
                 ),
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
-            self.fit_font(down_button, "page down")
+            self.FONT_MANAGER.fit_font(down_button, "page down")
 
     def clear_subframes(self, subframe: tk.Frame):
         index = self.subframe_list.index(subframe)
@@ -413,7 +376,7 @@ class App:
         tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
             relheight=0.1, rely=0.5, relx=0, relwidth=0.3
         )
-        new_vault_popup.after(10, self.apply_fonts, new_vault_popup)
+        new_vault_popup.after(10, self.FONT_MANAGER.apply_fonts, new_vault_popup)
         new_vault_popup.transient(self.root)
         new_vault_popup.grab_set()
 
@@ -477,7 +440,7 @@ class App:
             new_service_popup, command=create_service, text="create service"
         ).place(relheight=0.1, rely=0.3, relx=0, relwidth=0.5)
 
-        new_service_popup.after(10, self.apply_fonts, new_service_popup)
+        new_service_popup.after(10, self.FONT_MANAGER.apply_fonts, new_service_popup)
         new_service_popup.transient(self.root)
         new_service_popup.grab_set()
 
@@ -666,7 +629,7 @@ class App:
         tk.Button(add_mail_popup, text="add", command=add_entry).place(
             relx=0, rely=0.9, relheight=0.1
         )
-        add_mail_popup.after(10, self.apply_fonts, add_mail_popup)
+        add_mail_popup.after(10, self.FONT_MANAGER.apply_fonts, add_mail_popup)
         add_mail_popup.transient(self.root)
         add_mail_popup.grab_set()
 
