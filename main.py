@@ -31,7 +31,7 @@ class App:
 
         self.root.mainloop()
 
-    def setup(self):
+    def setup(self): #KEEP
         self.VAULTMANAGER.load_vaults() 
         self.selected_vault = ""
         self.selected_service = ""
@@ -43,7 +43,7 @@ class App:
         self.apply_theme()
         self.load_start_ui()
 
-    def create_frames(self): #KEEP
+    def create_frames(self): #move (UI handler)
         border_width = 2
 
         self.main_frame =   tk.Frame(self.root, borderwidth=border_width, relief="solid")
@@ -57,7 +57,7 @@ class App:
 
         self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
 
-    def apply_theme(self):#KEEP
+    def apply_theme(self):#move (UI handler)
         for frame in self.subframe_list:
             frame.configure(bg=self.THEME_MANAGER.background)
         self.main_frame.config(bg=self.THEME_MANAGER.background)
@@ -66,7 +66,7 @@ class App:
 
 
 
-    def load_start_ui(self):
+    def load_start_ui(self):#move (UI handler)
         try:
             self.root.state("zoomed")
         except tk.TclError:
@@ -92,7 +92,9 @@ class App:
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
         self.root.after(10, lambda: self.FONT_MANAGER.apply_fonts(self.main_frame))
 
-    def Load_config(self):
+    #
+    def Load_config(self): #move (config UI manager)
+        
         self.temp_items_per_page = self.CONFIG.items_per_page
         self.temp_font_family = self.CONFIG.font_family
         self.clear_subframes(self.subframe_1)
@@ -180,7 +182,7 @@ class App:
 
         self.FONT_MANAGER.apply_fonts(self.subframe_1)
 
-    def open_vault_config(self, vault_name: str):
+    def open_vault_config(self, vault_name: str): #move (UI hanlder)
         vault = self.VAULTMANAGER.vaults[vault_name]
         key_location = vault.key_path
         
@@ -210,7 +212,7 @@ class App:
 
         self.FONT_MANAGER.apply_fonts(self.subframe_3)
 
-    def load_vaults(self, page: int):
+    def load_vaults(self, page: int):#move (UI handler)
         self.selected_vault = ""
         self.render_pages(
             0, self.VAULTMANAGER.get_vault_names(), self.subframe_1, self.open_vault, self.new_vault
@@ -224,7 +226,7 @@ class App:
         function: Callable,
         add_command: Callable,
         filter_str=None,
-    ):
+    ): # move (UI handler)
         self.clear_subframes(frame)
         start = page * self.CONFIG.items_per_page
         end = start + self.CONFIG.items_per_page
@@ -297,13 +299,13 @@ class App:
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
             self.FONT_MANAGER.fit_font(down_button, "page down")
 
-    def clear_subframes(self, subframe: tk.Frame):
+    def clear_subframes(self, subframe: tk.Frame): #move (UI handler)
         index = self.subframe_list.index(subframe)
         for frame in self.subframe_list[index:]:
             for widget in frame.winfo_children():
                 widget.destroy()
 
-    def new_vault(self):
+    def new_vault(self): #move (UI handler)
         new_vault_popup = tk.Toplevel(self.root)
         new_vault_popup.title("New Vault")
         new_vault_popup.configure(bg="gray74")
@@ -328,7 +330,7 @@ class App:
             new_vault_popup, text="server", value="server", variable=vault_type
         ).place(relheight=0.1, relx=0.5, rely=0.4, relwidth=0.4)
 
-        def add_vault():
+        def add_vault(): # move (vault_manager) partially done
             if vault_type.get() == "server":
                 messagebox.showerror("Error", "Server saving not yet implemented")
                 return
@@ -380,7 +382,7 @@ class App:
         new_vault_popup.transient(self.root)
         new_vault_popup.grab_set()
 
-    def open_vault(self, name: str):
+    def open_vault(self, name: str): #move (UI handler)
         self.selected_vault = name
         self.clear_subframes(self.subframe_2)
 
@@ -404,7 +406,7 @@ class App:
             0, services, self.subframe_2, self.open_service, self.add_service
         )
 
-    def add_service(self):
+    def add_service(self): #KEEP UI
         new_service_popup = tk.Toplevel(
             self.root,
         )
@@ -416,7 +418,7 @@ class App:
             relheight=0.1, relx=0, rely=0, relwidth=0.5
         )
 
-        def create_service():
+        def create_service():# move (password_data_manager)
             new_name = name_entry.get()
 
             services: list[str] = []
@@ -444,7 +446,7 @@ class App:
         new_service_popup.transient(self.root)
         new_service_popup.grab_set()
 
-    def open_service(self, name: str):
+    def open_service(self, name: str):# KEEP
         self.selected_service = name
 
         self.clear_subframes(self.subframe_3)
@@ -460,7 +462,7 @@ class App:
                 Mails.append((ele["Mail"], ele["count"]))
             self.render_pages(0, Mails, self.subframe_3, self.open_mail, self.add_mail)
 
-    def open_mail(self, name: str):
+    def open_mail(self, name: str): #KEEP UI
         mail_popup = tk.Toplevel(self.root)
 
         self.scale_toplevel(mail_popup, 0.5)
@@ -472,7 +474,7 @@ class App:
         password_Label = tk.Label(mail_popup, text="password: *****")
         password_Label.place(relx=0, relheight=0.15, rely=0.15)
 
-        def decrypt_password():
+        def decrypt_password():# move (password_data_manager)
             master_password = simpledialog.askstring(
                 "enter Masterpassword", "Masterpassword:"
             )
@@ -498,7 +500,7 @@ class App:
             relx=0.3, rely=0.15, relheight=0.15
         )
 
-        def update_password():
+        def update_password():# move (password_data_manager)
             new_data_popup = tk.Toplevel(self.root)
             self.scale_toplevel(new_data_popup, 0.3)
             mail = name[0]
@@ -565,7 +567,7 @@ class App:
         mail_popup.transient(self.root)
         mail_popup.grab_set()
 
-    def add_mail(self):
+    def add_mail(self): # KEEP UI
         add_mail_popup = tk.Toplevel(self.root)
         self.scale_toplevel(add_mail_popup, 0.5)
 
@@ -605,7 +607,7 @@ class App:
             relheight=0.1, relx=0.5, relwidth=0.3, rely=0.6
         )
 
-        def add_entry():
+        def add_entry():# move (password_data_manager)
 
             name = name_entry.get()
             service = self.selected_service
@@ -633,7 +635,7 @@ class App:
         add_mail_popup.transient(self.root)
         add_mail_popup.grab_set()
 
-    def scale_toplevel(self, window: tk.Toplevel, size: float):
+    def scale_toplevel(self, window: tk.Toplevel, size: float):#move (UI handler)
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
         width = int(screen_width * size)
