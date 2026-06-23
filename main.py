@@ -1,13 +1,11 @@
-import binascii
 import json
-import os
 import random
 import secrets
 import string
 import tkinter as tk
 import tkinter.font as tkfont
 from pathlib import Path
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import messagebox, simpledialog
 from typing import Callable
 
 from decrypt import decrypt
@@ -335,43 +333,9 @@ class App:
                 messagebox.showerror("Error", "Server saving not yet implemented")
                 return
             vault_name = vault_name_entry.get()
-            data_dir = filedialog.askopenfilename(
-                initialdir="/",
-                title="select save directory",
-                filetypes=(("json files", "*.json*"),),
-            )
-            key_dir = filedialog.askopenfilename(
-                initialdir="/",
-                title="select key directory",
-                filetypes=(("Text files", "*.txt*"),),
-            )
-            if not data_dir or not key_dir:
-                messagebox.showerror("Error", "No directory selected")
-                return
-            self.VAULTMANAGER.create_vault(vault_name,key_dir,data_dir)
-            save_path = Path(data_dir)
-            try:
-                if save_path.stat().st_size > 0:
-                    with open(save_path, "r", encoding="utf-8") as file:
-                        save = json.load(file)
-                else:
-                    save = {}
-
-            except json.JSONDecodeError:
-                save = {}
-            save.setdefault("services", {})
-            with open(save_path, "w", encoding="utf-8") as file:
-                json.dump(save, file, indent=2)
-
-            key_path = Path(key_dir)
-            content = key_path.read_text().strip()
-            try:
-                key = binascii.unhexlify(content)
-                if len(key) != 32:
-                    key = os.urandom(32)
-                    key_path.write_text(key.hex())
-            except binascii.Error:
-                messagebox.showerror("Error", "not a valid hex string")
+            
+            self.VAULTMANAGER.create_vault(vault_name)
+            
             new_vault_popup.destroy()
             self.load_vaults(0)
 
