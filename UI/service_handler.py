@@ -1,7 +1,7 @@
-from .UI_handler import UI_Handler
+from .UI_handler import UI_handler
 import tkinter as tk
 class Service_Handler():
-    def __init__(self,Ui_Handler:UI_Handler) -> None:
+    def __init__(self,Ui_Handler:UI_handler) -> None:
         self.UI_Handler = Ui_Handler
     def load_services(self,vault_name):
         self.UI_Handler.render_pages(

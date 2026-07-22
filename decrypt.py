@@ -10,15 +10,16 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+from main import App
 
-def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)-> str:    
-    with open("config.json") as f:
-        config = json.load(f)
+def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:str,app:App)-> str:    
+    vault = app.VAULTMANAGER.get_vault(vault_name)
     
-    if config["Vaults"][vault]["type"] == "server":
+    if vault.vault_type == "server":
         return "error server not yet supported"
-    key_path = config["Vaults"][vault]["directories"][0]
-    data_path = config["Vaults"][vault]["directories"][1]
+
+    key_path = vault.key_path
+    data_path = vault.data_path
 
     try:
         with open(key_path, "r") as f:

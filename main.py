@@ -12,7 +12,7 @@ from decrypt import decrypt
 from encrypt import encrypt
 #from managers import ConfigManager, ThemeManager,VaultManager,
 import managers
-from UI import Label_combobox
+from UI import Label_combobox, UI_handler
 
 
 
@@ -21,8 +21,9 @@ class App:
     THEME_MANAGER = managers.THEME_MANAGER
     VAULTMANAGER = managers.VAULT_MANAGER
     FONT_MANAGER = managers.FONT_MANAGER
+    UI_HANDLER = UI_handler(FONT_MANAGER.apply_fonts)
     def __init__(self):
-        self.root = tk.Tk()
+        self.root = self.UI_HANDLER.root
         self.root.title("Password Manager")
         self.setup()
 
@@ -30,6 +31,7 @@ class App:
         self.root.mainloop()
 
     def setup(self): #KEEP
+        self.UI_HANDLER.create_frames()
         self.VAULTMANAGER.load_vaults() 
         self.selected_vault = ""
         self.selected_service = ""
@@ -250,7 +252,7 @@ class App:
                     return
             new_x_button = tk.Button(frame, text=btn_text, command=add_command)
             new_x_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            self.fit_font(new_x_button, text=btn_text)
+            self.FONT_MANAGER.fit_font(new_x_button, text=btn_text)
         else:
             up_button = tk.Button(
                 frame,
@@ -450,7 +452,7 @@ class App:
             Mail = name[0]
             count = int(name[1])
             decrypted_password = decrypt(
-                master_password, self.selected_service, Mail, count, self.selected_vault
+                master_password, self.selected_service, Mail, count, self.selected_vault,self
             )
             password_Label.configure(text=f"Password: {decrypted_password}")
             self.root.clipboard_clear()
@@ -514,6 +516,7 @@ class App:
                     int(name[1]),
                     True,
                     new_name,
+                    self
                 )
                 new_data_popup.destroy()
 
@@ -587,7 +590,7 @@ class App:
                 return
 
             encrypt(
-                master.encode(), password.encode(), service, vault, name, 1, False, name
+                master.encode(), password.encode(), service, vault, name, 1, False, name,self
             )
             add_mail_popup.destroy()
             self.open_service(self.selected_service)

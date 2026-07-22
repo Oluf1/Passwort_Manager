@@ -46,8 +46,11 @@ class VaultManager:
     def get_vault_names(self):
         return list(self.vaults.keys())
 
-    def get_vault(self, name):
-        return self.vaults.get(name)
+    def get_vault(self, name)-> Vault:
+        vault = self.vaults.get(name)
+        if not isinstance(vault,Vault):
+            raise ValueError(f"vault: '{vault}' not found")
+        return vault
 
     def create_vault(self, name):
         if name in self.vaults:

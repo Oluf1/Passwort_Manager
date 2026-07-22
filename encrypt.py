@@ -9,25 +9,24 @@ from argon2.low_level import hash_secret_raw,Type
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
+from main import App
 
 def encrypt(
     master_pass: bytes,
     password: bytes,
     service: str,
-    vault: str,
+    vault_name: str,
     mail: str,
     count: int,
     update_existing: bool,
-    new_mail:str
+    new_mail:str,
+    app:App
 ):
-    with open("config.json") as f:
-        config = json.load(f)
-    
+    vault = app.VAULTMANAGER.get_vault(vault_name)
         
-    Kdf_type = config["config"]["Kdf_type"]
-    key_path = config["Vaults"][vault]["directories"][0]
-    data_path = config["Vaults"][vault]["directories"][1]
+    Kdf_type = app.CONFIG.default_kdf
+    key_path = vault.key_path
+    data_path = vault.data_path
 
     nonce = os.urandom(12)  # saved with the password
     try:
