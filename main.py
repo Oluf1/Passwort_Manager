@@ -21,9 +21,10 @@ class App:
     THEME_MANAGER = managers.THEME_MANAGER
     VAULTMANAGER = managers.VAULT_MANAGER
     FONT_MANAGER = managers.FONT_MANAGER
-    UI_HANDLER = UI_handler(FONT_MANAGER.apply_fonts)
+    
     def __init__(self):
-        self.root = self.UI_HANDLER.root
+        self.ui_handler = UI_handler(self.FONT_MANAGER,self)
+        self.root = self.ui_handler.root
         self.root.title("Password Manager")
         self.setup()
 
@@ -31,7 +32,7 @@ class App:
         self.root.mainloop()
 
     def setup(self): #KEEP
-        self.UI_HANDLER.create_frames()
+        self.ui_handler.create_frames()
         self.VAULTMANAGER.load_vaults() 
         self.selected_vault = ""
         self.selected_service = ""
@@ -39,49 +40,24 @@ class App:
         self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
         
         
-        self.create_frames()
-        self.apply_theme()
-        self.load_start_ui()
-
-    def create_frames(self): #move (UI handler)
-        border_width = 2
-
-        self.main_frame =   tk.Frame(self.root, borderwidth=border_width, relief="solid")
-        self.main_frame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
-        self.subframe_1 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
-        self.subframe_1.place(relheight=1, relwidth=0.15, relx=0.2, rely=0)
-        self.subframe_2 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
-        self.subframe_2.place(relheight=1, relwidth=0.25, relx=0.35, rely=0)
-        self.subframe_3 = tk.Frame(self.root, borderwidth=border_width, relief="solid")
-        self.subframe_3.place(relheight=1, relwidth=0.4, relx=0.6)
-
-        self.subframe_list = [self.subframe_1, self.subframe_2, self.subframe_3]
-
-    def apply_theme(self):#move (UI handler)
-        for frame in self.subframe_list:
-            frame.configure(bg=self.THEME_MANAGER.background)
-        self.main_frame.config(bg=self.THEME_MANAGER.background)
-
-    
-
+        self.ui_handler.create_frames()
+        self.ui_handler.apply_theme_on_frames()
+        self.ui_handler.load_main_menu()
 
 
     def load_start_ui(self):#move (UI handler)
-        try:
-            self.root.state("zoomed")
-        except tk.TclError:
-            self.root.attributes("-zoomed", True)
+        
 
-        name_label = tk.Label(self.main_frame, text="Password Manager")
+        name_label = tk.Label(self.ui_handler.main_frame, text="Password Manager")
         open_vaults_button = tk.Button(
-            self.main_frame,
+            self.ui_handler.main_frame,
             text="Vaults",
             bg="royalblue",
             command=lambda: self.load_vaults(0),
         )
         name_label.place(relx=0, rely=0, relwidth=0.95, relheight=0.1)
         config_button = tk.Button(
-            self.main_frame, text="config", bg="lightgrey", command=self.Load_config
+            self.ui_handler.main_frame, text="config", bg="lightgrey", command=self.Load_config
         )
         open_vaults_button.place(
             relx=0,
@@ -90,42 +66,42 @@ class App:
             relheight=0.1,
         )
         config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
-        self.root.after(10, lambda: self.FONT_MANAGER.apply_fonts(self.main_frame))
+        self.root.after(10, lambda: self.FONT_MANAGER.apply_fonts(self.ui_handler.main_frame))
 
     #
     def Load_config(self): #move (config UI manager)
         
         self.temp_items_per_page = self.CONFIG.items_per_page
         self.temp_font_family = self.CONFIG.font_family
-        self.clear_subframes(self.subframe_1)
+        self.clear_subframes(self.ui_handler.subframe_1)
 
         fonts = list(tkfont.families())
         fonts_combolabel_obj = Label_combobox(
-            self.subframe_1, "Fonts", fonts, self.CONFIG.font_family, 0.15, 0.1
+            self.ui_handler.subframe_1, "Fonts", fonts, self.CONFIG.font_family, 0.15, 0.1
         )
         change_fonts_combolabel = fonts_combolabel_obj.combobox
 
         items_per_page_label = tk.Label(
-            self.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 3}"
+            self.ui_handler.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 3}"
         )
         tk.Button(
-            self.subframe_1,
+            self.ui_handler.subframe_1,
             text="+",
             command=lambda change=1: change_items_per_page(change),
         ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
         tk.Button(
-            self.subframe_1,
+            self.ui_handler.subframe_1,
             text="-",
             command=lambda change=-1: change_items_per_page(change),
         ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
         themes = list(self.THEME_MANAGER.theme_keys)
 
         themes_combolabel = Label_combobox(
-            self.subframe_1, "Theme", themes, self.CONFIG.theme_name, 0.15, 0.35
+            self.ui_handler.subframe_1, "Theme", themes, self.CONFIG.theme_name, 0.15, 0.35
         )
 
         defualt_kdf_combolabel = Label_combobox(
-            self.subframe_1,
+            self.ui_handler.subframe_1,
             "Default Kdf",
             self.supported_kdfs,
             self.CONFIG.default_kdf,
@@ -154,7 +130,7 @@ class App:
                 messagebox.showerror("Error", "Not a Theme")
             self.CONFIG.theme_name = selected_theme
             self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
-            self.apply_theme()
+            self.ui_handler.apply_theme_on_frames()
 
         def apply_changes():
             change_font()
@@ -166,21 +142,21 @@ class App:
             self.CONFIG.default_kdf = new_kdf
             
             self.CONFIG.save()
-            self.FONT_MANAGER.apply_fonts(self.subframe_1)
+            self.FONT_MANAGER.apply_fonts(self.ui_handler.subframe_1)
             self.Load_config()
             self.load_start_ui()
 
-        tk.Button(self.subframe_1, text="Apply", command=apply_changes).place(
+        tk.Button(self.ui_handler.subframe_1, text="Apply", command=apply_changes).place(
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
         self.render_pages(
-            0, self.VAULTMANAGER.get_vault_names(), self.subframe_2, self.open_vault_config, self.new_vault
+            0, self.VAULTMANAGER.get_vault_names(), self.ui_handler.subframe_2, self.open_vault_config, self.new_vault
         )
 
         items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
 
-        self.FONT_MANAGER.apply_fonts(self.subframe_1)
+        self.FONT_MANAGER.apply_fonts(self.ui_handler.subframe_1)
 
     def open_vault_config(self, vault_name: str): #move (UI hanlder)
         vault = self.VAULTMANAGER.vaults[vault_name]
@@ -206,16 +182,16 @@ class App:
             self.VAULTMANAGER.delete_vault(vault_name)
             self.Load_config()
 
-        tk.Button(self.subframe_3, text="delete", command=delete_vault).place(
+        tk.Button(self.ui_handler.subframe_3, text="delete", command=delete_vault).place(
             relheight=0.1, relwidth=1, relx=0, rely=0
         )
 
-        self.FONT_MANAGER.apply_fonts(self.subframe_3)
+        self.FONT_MANAGER.apply_fonts(self.ui_handler.subframe_3)
 
     def load_vaults(self, page: int):#move (UI handler)
         self.selected_vault = ""
         self.render_pages(
-            0, self.VAULTMANAGER.get_vault_names(), self.subframe_1, self.open_vault, self.new_vault
+            0, self.VAULTMANAGER.get_vault_names(), self.ui_handler.subframe_1, self.open_vault, self.new_vault
         )
 
     def render_pages(
@@ -277,7 +253,7 @@ class App:
             relx=0.8, rely=btn_size, relheight=btn_size, relwidth=0.2
         )
         for i, item in enumerate(current_items):
-            if frame == self.subframe_3:
+            if frame == self.ui_handler.subframe_3:
                 text_name = f"{item[0]} {str(item[1])}"
             else:
                 text_name = item
@@ -300,8 +276,8 @@ class App:
             self.FONT_MANAGER.fit_font(down_button, "page down")
 
     def clear_subframes(self, subframe: tk.Frame): #move (UI handler)
-        index = self.subframe_list.index(subframe)
-        for frame in self.subframe_list[index:]:
+        index = self.ui_handler.subframe_list.index(subframe)
+        for frame in self.ui_handler.subframe_list[index:]:
             for widget in frame.winfo_children():
                 widget.destroy()
 
@@ -350,7 +326,7 @@ class App:
 
     def open_vault(self, name: str): #move (UI handler)
         self.selected_vault = name
-        self.clear_subframes(self.subframe_2)
+        self.clear_subframes(self.ui_handler.subframe_2)
 
         vault = self.VAULTMANAGER.vaults[name]
         services: list[str] = []
@@ -369,7 +345,7 @@ class App:
             messagebox.showerror("Error", f"{vault[type]} is not a valid save type.")
 
         self.render_pages(
-            0, services, self.subframe_2, self.open_service, self.add_service
+            0, services, self.ui_handler.subframe_2, self.open_service, self.add_service
         )
 
     def add_service(self): #KEEP UI
@@ -415,7 +391,7 @@ class App:
     def open_service(self, name: str):# KEEP
         self.selected_service = name
 
-        self.clear_subframes(self.subframe_3)
+        self.clear_subframes(self.ui_handler.subframe_3)
 
         vault = self.VAULTMANAGER.vaults[self.selected_vault]
         Mails: list = []
@@ -426,7 +402,7 @@ class App:
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.render_pages(0, Mails, self.subframe_3, self.open_mail, self.add_mail)
+            self.render_pages(0, Mails, self.ui_handler.subframe_3, self.open_mail, self.add_mail)
 
     def open_mail(self, name: str): #KEEP UI
         mail_popup = tk.Toplevel(self.root)
