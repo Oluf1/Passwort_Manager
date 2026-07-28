@@ -3,8 +3,7 @@ import random
 import secrets
 import string
 import tkinter as tk
-import tkinter.font as tkfont
-from pathlib import Path
+from pathlib import Path 
 from tkinter import messagebox, simpledialog
 from typing import Callable
 
@@ -12,7 +11,7 @@ from decrypt import decrypt
 from encrypt import encrypt
 #from managers import ConfigManager, ThemeManager,VaultManager,
 import managers
-from UI import Label_combobox, UI_handler
+from UI import  UI_handler
 
 
 
@@ -25,6 +24,8 @@ class App:
     def __init__(self):
         self.ui_handler = UI_handler(self.FONT_MANAGER,
                                     self.THEME_MANAGER,
+                                    self.CONFIG,
+                                    self.VAULTMANAGER,
                                     self)
         
         self.root = self.ui_handler.root#unsure of wether this should be moved to setup
@@ -49,119 +50,7 @@ class App:
         self.ui_handler.load_main_menu()
 
 
-    def load_start_ui(self):#move (UI handler)
-        
-
-        name_label = tk.Label(self.frame_handler.main_frame, text="Password Manager")
-        open_vaults_button = tk.Button(
-            self.frame_handler.main_frame,
-            text="Vaults",
-            bg="royalblue",
-            command=lambda: self.load_vaults(0),
-        )
-        name_label.place(relx=0, rely=0, relwidth=0.95, relheight=0.1)
-        config_button = tk.Button(
-            self.frame_handler.main_frame, text="config", bg="lightgrey", command=self.Load_config
-        )
-        open_vaults_button.place(
-            relx=0,
-            rely=0.1,
-            relwidth=1,
-            relheight=0.1,
-        )
-        config_button.place(relx=0, rely=0.21, relwidth=1, relheight=0.1)
-        self.root.after(10, lambda: self.FONT_MANAGER.apply_fonts(self.frame_handler.main_frame))
-
-    #
-    def Load_config(self): #move (config UI manager)
-        
-        self.temp_items_per_page = self.CONFIG.items_per_page
-        self.temp_font_family = self.CONFIG.font_family
-        self.clear_subframes(self.frame_handler.subframe_1)
-
-        fonts = list(tkfont.families())
-        fonts_combolabel_obj = Label_combobox(
-            self.frame_handler.subframe_1, "Fonts", fonts, self.CONFIG.font_family, 0.15, 0.1
-        )
-        change_fonts_combolabel = fonts_combolabel_obj.combobox
-
-        items_per_page_label = tk.Label(
-            self.frame_handler.subframe_1, text=f"items per page: {self.CONFIG.items_per_page + 3}"
-        )
-        tk.Button(
-            self.frame_handler.subframe_1,
-            text="+",
-            command=lambda change=1: change_items_per_page(change),
-        ).place(rely=0.25, relheight=0.05, relx=0.8, relwidth=0.2)
-        tk.Button(
-            self.frame_handler.subframe_1,
-            text="-",
-            command=lambda change=-1: change_items_per_page(change),
-        ).place(rely=0.3, relheight=0.05, relx=0.8, relwidth=0.2)
-        themes = list(self.THEME_MANAGER.theme_keys)
-
-        themes_combolabel = Label_combobox(
-            self.frame_handler.subframe_1, "Theme", themes, self.CONFIG.theme_name, 0.15, 0.35
-        )
-
-        defualt_kdf_combolabel = Label_combobox(
-            self.frame_handler.subframe_1,
-            "Default Kdf",
-            self.supported_kdfs,
-            self.CONFIG.default_kdf,
-            0.15,
-            0.5,
-        )
-
-        def change_items_per_page(change: int):
-            self.temp_items_per_page += change
-            self.temp_items_per_page = max(3, min(self.temp_items_per_page, 20))
-            items_per_page_label.config(
-                text=f"items per page: {self.temp_items_per_page + 3}"
-            )
-            items_per_page_label.update_idletasks()
-
-        def change_font():
-            selected_font = change_fonts_combolabel.get()
-            if selected_font not in fonts:
-                messagebox.showerror("Error", "Not a font")
-                return
-            self.temp_font_family = selected_font
-
-        def change_theme():
-            selected_theme = themes_combolabel.combobox.get()
-            if selected_theme not in themes:
-                messagebox.showerror("Error", "Not a Theme")
-            self.CONFIG.theme_name = selected_theme
-            self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
-            self.frame_handler.apply_theme_on_frames()
-
-        def apply_changes():
-            change_font()
-            change_theme()
-            new_kdf = defualt_kdf_combolabel.combobox.get()
-
-            self.CONFIG.items_per_page = self.temp_items_per_page
-            self.CONFIG.font_family = self.temp_font_family
-            self.CONFIG.default_kdf = new_kdf
-            
-            self.CONFIG.save()
-            self.FONT_MANAGER.apply_fonts(self.frame_handler.subframe_1)
-            self.Load_config()
-            self.load_start_ui()
-
-        tk.Button(self.frame_handler.subframe_1, text="Apply", command=apply_changes).place(
-            relheight=0.1, relwidth=1, relx=0, rely=0
-        )
-
-        self.render_pages(
-            0, self.VAULTMANAGER.get_vault_names(), self.frame_handler.subframe_2, self.open_vault_config, self.new_vault
-        )
-
-        items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
-
-        self.FONT_MANAGER.apply_fonts(self.frame_handler.subframe_1)
-
+    
     def open_vault_config(self, vault_name: str): #move (UI hanlder)
         vault = self.VAULTMANAGER.vaults[vault_name]
         key_location = vault.key_path
@@ -184,7 +73,7 @@ class App:
             Path(save_file_location).unlink()
             Path(key_location).unlink()
             self.VAULTMANAGER.delete_vault(vault_name)
-            self.Load_config()
+            self.ui_handler.load_config()
 
         tk.Button(self.frame_handler.subframe_3, text="delete", command=delete_vault).place(
             relheight=0.1, relwidth=1, relx=0, rely=0

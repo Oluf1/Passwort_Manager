@@ -23,3 +23,9 @@ class Frame_Handler:
         for frame in self.subframe_list:
             frame.configure(bg=self.ui_handler.theme_manager.background)
         self.main_frame.config(bg=self.ui_handler.theme_manager.background)
+    
+    def clear_subframes(self, subframe: tk.Frame): #move (UI handler)
+        index = self.subframe_list.index(subframe)
+        for frame in self.subframe_list[index:]:
+            for widget in frame.winfo_children():
+                widget.destroy()

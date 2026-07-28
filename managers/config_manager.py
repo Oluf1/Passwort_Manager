@@ -1,5 +1,5 @@
 import json
-
+from typing import List
 
 class ConfigManager:
     def __init__(self, path="config.json"):
@@ -53,7 +53,10 @@ class ConfigManager:
     def items_per_page(self, value):
         self.config["items_per_page"] = value
 
-
+    @property
+    def supported_kdfs(self)->List[str]:    
+        return ["Argon2", "PBKDF2"]
+        
     @property
     def default_kdf(self):
         return self.config["Kdf_type"]
