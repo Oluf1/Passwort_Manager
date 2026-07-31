@@ -96,7 +96,7 @@ class App:
         add_command: Callable,
         filter_str=None,
     ): # move (UI handler)
-        self.clear_subframes(frame)
+        self.frame_handler.clear_subframes(frame)
         start = page * self.CONFIG.items_per_page
         end = start + self.CONFIG.items_per_page
         btn_size = 1 / (self.CONFIG.items_per_page + 3)
@@ -219,7 +219,7 @@ class App:
 
     def open_vault(self, name: str): #move (UI handler)
         self.selected_vault = name
-        self.clear_subframes(self.frame_handler.subframe_2)
+        self.frame_handler.clear_subframes(self.frame_handler.subframe_2)
 
         vault = self.VAULTMANAGER.vaults[name]
         services: list[str] = []
@@ -284,7 +284,7 @@ class App:
     def open_service(self, name: str):# KEEP
         self.selected_service = name
 
-        self.clear_subframes(self.frame_handler.subframe_3)
+        self.frame_handler.clear_subframes(self.frame_handler.subframe_3)
 
         vault = self.VAULTMANAGER.vaults[self.selected_vault]
         Mails: list = []

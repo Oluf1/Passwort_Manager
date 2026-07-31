@@ -1,6 +1,8 @@
 import tkinter as tk
-from .UI_handler import UI_handler
-def load_main_menu(UI_Handler:UI_handler):#move (UI handler)
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .UI_handler import UI_handler
+def load_main_menu(UI_Handler:"UI_handler"):#move (UI handler)
         
 
         name_label = tk.Label(UI_Handler.frame_handler.main_frame, text="Password Manager")

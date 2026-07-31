@@ -1,10 +1,13 @@
 import tkinter as tk
 from typing import Callable
-from.UI_handler import UI_handler
 from tkinter import messagebox
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from.UI_handler import UI_handler
+
 
 def render_pages(
-        ui_handler:UI_handler,
+        ui_handler:"UI_handler",
         page: int,
         items: list[str],
         frame: tk.Frame,

@@ -1,11 +1,13 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from .UI_handler import UI_handler
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from.UI_handler import UI_handler
 from .Labelcombobox import Label_combobox
 from tkinter import messagebox
 
 
-def load_config(ui_handler:UI_handler):  # move (config UI manager)
+def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
     temp_items_per_page = ui_handler.config.items_per_page
     ui_handler.frame_handler.clear_subframes(ui_handler.frame_handler.subframe_1)
 

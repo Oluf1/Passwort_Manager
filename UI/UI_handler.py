@@ -1,7 +1,9 @@
 import tkinter as tk
 from .main_menu import load_main_menu
 from managers import Font_manager, ThemeManager,ConfigManager,VaultManager
-from main import App#temporary so as to not break parts 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import App #avoids Circular Importing#temporary so as to not break parts 
 from .frame_handler import Frame_Handler
 from .page_handler import render_pages
 from .load_config import load_config 
@@ -11,7 +13,7 @@ class UI_handler:
                  theme_manager:ThemeManager,
                  config:ConfigManager,
                  vault_manager:VaultManager,
-                 App:App) -> None:
+                 App:"App") -> None:
         
         self.vault_manager = vault_manager
         self.theme_manager = theme_manager
@@ -20,7 +22,9 @@ class UI_handler:
         self.app = App
         self.apply_fonts = self.font_manager.apply_fonts
         
-        self.frame_handler = Frame_Handler(self)
+        
+        
+        self.setup()
         
     def setup(self):
         # Setting up base properties of Root
@@ -32,7 +36,10 @@ class UI_handler:
             
         self.root.title("Password Manager")
 
+        self.frame_handler = Frame_Handler(self)
+        
         load_main_menu(self)    
+        
     def load_vaults(self,page:int):
         self.app.load_vaults(0)
         

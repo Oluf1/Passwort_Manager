@@ -9,10 +9,11 @@ import cryptography.exceptions
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import App #avoids Circular Importing
 
-from main import App
-
-def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:str,app:App)-> str:    
+def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:str,app:"App")-> str:    
     vault = app.VAULTMANAGER.get_vault(vault_name)
     
     if vault.vault_type == "server":

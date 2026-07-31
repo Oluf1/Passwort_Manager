@@ -9,7 +9,9 @@ from argon2.low_level import hash_secret_raw,Type
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from main import App
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import App #avoids Circular Importing
 
 def encrypt(
     master_pass: bytes,
@@ -20,7 +22,7 @@ def encrypt(
     count: int,
     update_existing: bool,
     new_mail:str,
-    app:App
+    app:"App"
 ):
     vault = app.VAULTMANAGER.get_vault(vault_name)
         
