@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 from .frame_handler import Frame_Handler
 from .page_handler import render_pages
 from .load_config import load_config 
+from .font_handler import Font_handler
+from .scale_toplevel import scale_toplevel
+from .vault_handler import Vault_Handler
 class UI_handler:
     def __init__(self,
                  Font_Manager:Font_manager,
@@ -21,7 +24,8 @@ class UI_handler:
         self.config = config
         self.app = App
         self.apply_fonts = self.font_manager.apply_fonts
-        
+        self.font_handler = Font_handler(self)
+        self.vault_handler = Vault_Handler(self)
         
         
         self.setup()
@@ -41,10 +45,19 @@ class UI_handler:
         load_main_menu(self)    
         
     def load_vaults(self,page:int):
-        self.app.load_vaults(0)
+        self.vault_handler.load_vaults(page)
+
+    def new_vault(self):
+        self.app.new_vault()
+
+    def open_vault(self,name:str):
+        self.vault_handler.open_vault(name)
+
+    def open_vault(self,name):
+        self.app.open_vault(name)
         
     def load_config(self):
-        load_config(self) #temporarily using app. since it hasn't been added to UI_handler yet
+        load_config(self) 
         
     def load_main_menu(self):
         load_main_menu(self)
@@ -52,8 +65,8 @@ class UI_handler:
     def render_pages(self,page,items,frame,open_function,add_command,filter_str=None):
         render_pages(self,page,items,frame,open_function,add_command,filter_str)
     
-    
-   
-    
-      
-        
+    def apply_fonts(self,parent:tk.Frame):
+        self.font_handler.apply_fonts(parent)
+
+    def scale_toplevel(self,window: tk.Toplevel, size: float):
+        scale_toplevel(window,size,self.theme_manager)

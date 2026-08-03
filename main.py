@@ -81,104 +81,12 @@ class App:
 
         self.FONT_MANAGER.apply_fonts(self.frame_handler.subframe_3)
 
-    def load_vaults(self, page: int):#move (UI handler)
-        self.selected_vault = ""
-        self.render_pages(
-            0, self.VAULTMANAGER.get_vault_names(), self.frame_handler.subframe_1, self.open_vault, self.new_vault
-        )
-
-    def render_pages(
-        self,
-        page: int,
-        items: list[str],
-        frame: tk.Frame,
-        function: Callable,
-        add_command: Callable,
-        filter_str=None,
-    ): # move (UI handler)
-        self.frame_handler.clear_subframes(frame)
-        start = page * self.CONFIG.items_per_page
-        end = start + self.CONFIG.items_per_page
-        btn_size = 1 / (self.CONFIG.items_per_page + 3)
-        filtered_items = []
-        if filter_str:
-            for item in items:
-                if filter_str in item:
-                    filtered_items.append(item)
-        else:
-            filtered_items = items
-        current_items = filtered_items[start:end]
-        if page == 0:
-            match add_command:
-                case self.new_vault:
-                    btn_text = "Add vault"
-                case self.add_mail:
-                    btn_text = "add mail"
-                case self.add_service:
-                    btn_text = "add service"
-                case _:
-                    messagebox.showerror("Error", f"wrong add_command function given: {add_command}")
-                    return
-            new_x_button = tk.Button(frame, text=btn_text, command=add_command)
-            new_x_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            self.FONT_MANAGER.fit_font(new_x_button, text=btn_text)
-        else:
-            up_button = tk.Button(
-                frame,
-                text="page up",
-                command=lambda new_page=page - 1: self.render_pages(
-                    new_page, items, frame, function, add_command
-                ),
-            )
-            up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            self.FONT_MANAGER.fit_font(up_button, "page up")
-        search_entry = tk.Entry(frame)
-        if filter_str:
-            search_entry.insert(0, filter_str)
-        search_entry.place(relx=0, rely=btn_size, relheight=btn_size, relwidth=0.8)
-
-        def filtered_search():
-            self.render_pages(
-                page, items, frame, function, add_command, search_entry.get()
-            )
-
-        tk.Button(frame, command=filtered_search, text="Search").place(
-            relx=0.8, rely=btn_size, relheight=btn_size, relwidth=0.2
-        )
-        for i, item in enumerate(current_items):
-            if frame == self.frame_handler.subframe_3:
-                text_name = f"{item[0]} {str(item[1])}"
-            else:
-                text_name = item
-            button = tk.Button(
-                frame, text=str(text_name), command=lambda it=item: function(it)
-            )
-            button.place(
-                relheight=btn_size, relx=0, relwidth=1, rely=2 * btn_size + btn_size * i
-            )
-            self.FONT_MANAGER.fit_font(button, text_name)
-        if end < len(items):
-            down_button = tk.Button(
-                frame,
-                text="page down",
-                command=lambda new_page=page + 1: self.render_pages(
-                    new_page, items, frame, function, add_command
-                ),
-            )
-            down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
-            self.FONT_MANAGER.fit_font(down_button, "page down")
-
-    def clear_subframes(self, subframe: tk.Frame): #move (UI handler)
-        index = self.frame_handler.subframe_list.index(subframe)
-        for frame in self.frame_handler.subframe_list[index:]:
-            for widget in frame.winfo_children():
-                widget.destroy()
 
     def new_vault(self): #move (UI handler)
         new_vault_popup = tk.Toplevel(self.root)
         new_vault_popup.title("New Vault")
         new_vault_popup.configure(bg="gray74")
-        self.scale_toplevel(new_vault_popup, 0.5)
+        self.ui_handler.scale_toplevel(new_vault_popup, 0.5)
 
         tk.Label(new_vault_popup, text="New vault Name").place(
             relheight=0.1, relx=0, rely=0, relwidth=0.4
@@ -208,7 +116,7 @@ class App:
             self.VAULTMANAGER.create_vault(vault_name)
             
             new_vault_popup.destroy()
-            self.load_vaults(0)
+            self.ui_handler.load_vaults(0)
 
         tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
             relheight=0.1, rely=0.5, relx=0, relwidth=0.3
@@ -217,35 +125,12 @@ class App:
         new_vault_popup.transient(self.root)
         new_vault_popup.grab_set()
 
-    def open_vault(self, name: str): #move (UI handler)
-        self.selected_vault = name
-        self.frame_handler.clear_subframes(self.frame_handler.subframe_2)
-
-        vault = self.VAULTMANAGER.vaults[name]
-        services: list[str] = []
-
-        if vault.vault_type == "local":
-            location = vault.data_path
-
-            with open(location) as f:
-                data = json.load(f)
-
-                services = list(data["services"].keys())
-
-        elif vault.vault_type == "server":
-            messagebox.showerror("Error", "server not yet implemented")
-        else:
-            messagebox.showerror("Error", f"{vault[type]} is not a valid save type.")
-
-        self.render_pages(
-            0, services, self.frame_handler.subframe_2, self.open_service, self.add_service
-        )
 
     def add_service(self): #KEEP UI
         new_service_popup = tk.Toplevel(
             self.root,
         )
-        self.scale_toplevel(new_service_popup, 0.5)
+        self.ui_handler.scale_toplevel(new_service_popup, 0.5)
 
         name_entry = tk.Entry(new_service_popup)
         name_entry.place(relheight=0.1, relx=0, rely=0.1, relwidth=1)
@@ -271,7 +156,7 @@ class App:
                 data["services"][new_name] = []
                 with open(location, "w") as file:
                     json.dump(data, file, indent=2)
-                self.open_vault(self.selected_vault)
+                self.ui_handler.open_vault(self.selected_vault)
 
         tk.Button(
             new_service_popup, command=create_service, text="create service"
@@ -295,12 +180,12 @@ class App:
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.render_pages(0, Mails, self.frame_handler.subframe_3, self.open_mail, self.add_mail)
+            self.ui_handler.render_pages(0, Mails, self.frame_handler.subframe_3, self.open_mail, self.add_mail)
 
     def open_mail(self, name: str): #KEEP UI
         mail_popup = tk.Toplevel(self.root)
 
-        self.scale_toplevel(mail_popup, 0.5)
+        self.ui_handler.scale_toplevel(mail_popup, 0.5)
         mail_popup.title(name)
 
         tk.Label(mail_popup, text=f"service: {self.selected_service}").place(
@@ -337,7 +222,7 @@ class App:
 
         def update_password():# move (password_data_manager)
             new_data_popup = tk.Toplevel(self.root)
-            self.scale_toplevel(new_data_popup, 0.3)
+            self.ui_handler.scale_toplevel(new_data_popup, 0.3)
             mail = name[0]
             new_name_entry = tk.Entry(new_data_popup)
             new_name_entry.insert(0, mail)
@@ -405,7 +290,7 @@ class App:
 
     def add_mail(self): # KEEP UI
         add_mail_popup = tk.Toplevel(self.root)
-        self.scale_toplevel(add_mail_popup, 0.5)
+        self.ui_handler.scale_toplevel(add_mail_popup, 0.5)
 
         name_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup, text="Email").place(
@@ -471,16 +356,7 @@ class App:
         add_mail_popup.transient(self.root)
         add_mail_popup.grab_set()
 
-    def scale_toplevel(self, window: tk.Toplevel, size: float):#move (UI handler)
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        width = int(screen_width * size)
-        height = int(screen_height * size)
-        x = int((screen_width - width) * 0.5)
-        y = int((screen_height - height) * 0.5)
-        window.geometry(f"{width}x{height}+{x}+{y}")
-        window.config(bg=self.THEME_MANAGER.top_level_color)
-
+    
 
 if __name__ == "__main__":
     App()

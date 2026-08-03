@@ -115,3 +115,11 @@ class VaultManager:
         Path(vault.data_path).unlink(missing_ok=True)
         del self.vaults[name]
         self.save_vaults()
+    def get_services(self,vault:Vault):
+        if vault.vault_type == "local":
+            location = vault.data_path
+
+            with open(location) as f:
+                data = json.load(f)
+                services = list(data["services"].keys())
+        
