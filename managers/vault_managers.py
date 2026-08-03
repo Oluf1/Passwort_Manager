@@ -12,7 +12,22 @@ class Vault:
     vault_type: str
     key_path: Path
     data_path: Path
+    def get_services(self) -> list[str]:
+        if self.vault_type == "local":
+            location = self.data_path
 
+            with open(location) as f:
+                data = json.load(f)
+                services = list(data["services"].keys())
+                return services
+    def add_service(self,new_name:str)-> None:
+        with open(self.data_path)as services:
+            data = json.load(services)
+        if new_name in list(data["services"].keys()):
+            raise Exception("service already exists")
+        data["services"][new_name] = []
+        with open(self.data_path, "w") as file:
+            json.dump(data, file, indent=2)
 
 class VaultManager:
     def __init__(self, vaults_file="vaults.json"):
@@ -115,11 +130,5 @@ class VaultManager:
         Path(vault.data_path).unlink(missing_ok=True)
         del self.vaults[name]
         self.save_vaults()
-    def get_services(self,vault:Vault):
-        if vault.vault_type == "local":
-            location = vault.data_path
 
-            with open(location) as f:
-                data = json.load(f)
-                services = list(data["services"].keys())
         

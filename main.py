@@ -48,45 +48,6 @@ class App:
         self.ui_handler.load_main_menu()
 
 
-    def new_vault(self): #move (UI handler)
-        new_vault_popup = self.ui_handler.create_popup("add vault")
-
-        tk.Label(new_vault_popup, text="New vault Name").place(
-            relheight=0.1, relx=0, rely=0, relwidth=0.4
-        )
-        vault_name_entry = tk.Entry(new_vault_popup)
-
-        vault_name_entry.place(relheight=0.15, relwidth=1, relx=0, rely=0.1)
-
-        vault_type = tk.StringVar(value="local")
-
-        tk.Label(new_vault_popup, text="vault type").place(
-            relheight=0.1, relx=0, rely=0.27, relwidth=0.4
-        )
-        tk.Radiobutton(
-            new_vault_popup, text="Local", value="local", variable=vault_type
-        ).place(relheight=0.1, relx=0, rely=0.4, relwidth=0.4)
-        tk.Radiobutton(
-            new_vault_popup, text="server", value="server", variable=vault_type
-        ).place(relheight=0.1, relx=0.5, rely=0.4, relwidth=0.4)
-
-        def add_vault(): # move (vault_manager) partially done
-            if vault_type.get() == "server":
-                messagebox.showerror("Error", "Server saving not yet implemented")
-                return
-            vault_name = vault_name_entry.get()
-            
-            self.VAULTMANAGER.create_vault(vault_name)
-            
-            new_vault_popup.destroy()
-            self.ui_handler.load_vaults(0)
-
-        tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
-            relheight=0.1, rely=0.5, relx=0, relwidth=0.3
-        )
-        new_vault_popup.after(10, self.FONT_MANAGER.apply_fonts, new_vault_popup)
-        new_vault_popup.transient(self.root)
-        new_vault_popup.grab_set()
 
 
     def add_service(self): #KEEP UI
