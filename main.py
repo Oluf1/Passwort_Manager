@@ -83,10 +83,7 @@ class App:
 
 
     def new_vault(self): #move (UI handler)
-        new_vault_popup = tk.Toplevel(self.root)
-        new_vault_popup.title("New Vault")
-        new_vault_popup.configure(bg="gray74")
-        self.ui_handler.scale_toplevel(new_vault_popup, 0.5)
+        new_vault_popup = self.ui_handler.create_popup("add vault")
 
         tk.Label(new_vault_popup, text="New vault Name").place(
             relheight=0.1, relx=0, rely=0, relwidth=0.4
@@ -127,10 +124,7 @@ class App:
 
 
     def add_service(self): #KEEP UI
-        new_service_popup = tk.Toplevel(
-            self.root,
-        )
-        self.ui_handler.scale_toplevel(new_service_popup, 0.5)
+        new_service_popup =self.ui_handler.create_popup("add service")
 
         name_entry = tk.Entry(new_service_popup)
         name_entry.place(relheight=0.1, relx=0, rely=0.1, relwidth=1)
@@ -289,8 +283,7 @@ class App:
         mail_popup.grab_set()
 
     def add_mail(self): # KEEP UI
-        add_mail_popup = tk.Toplevel(self.root)
-        self.ui_handler.scale_toplevel(add_mail_popup, 0.5)
+        add_mail_popup = self.ui_handler.create_popup("add mail")
 
         name_entry = tk.Entry(add_mail_popup)
         tk.Label(add_mail_popup, text="Email").place(

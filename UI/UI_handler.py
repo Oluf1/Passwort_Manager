@@ -8,7 +8,7 @@ from .frame_handler import Frame_Handler
 from .page_handler import render_pages
 from .load_config import load_config 
 from .font_handler import Font_handler
-from .scale_toplevel import scale_toplevel
+from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
 class UI_handler:
     def __init__(self,
@@ -55,7 +55,7 @@ class UI_handler:
 
     def open_vault(self,name):
         self.app.open_vault(name)
-        
+
     def load_config(self):
         load_config(self) 
         
@@ -70,3 +70,6 @@ class UI_handler:
 
     def scale_toplevel(self,window: tk.Toplevel, size: float):
         scale_toplevel(window,size,self.theme_manager)
+
+    def create_popup(self,title):
+        create_popup(title,self.root,self.theme_manager)
