@@ -6,12 +6,12 @@ import tkinter as tk
 class Vault_Handler():
     def __init__(self,ui_handler:UI_handler):
           self.ui_handler = ui_handler
-    def load_vaults(self, page: int):#move (UI handler)
+    def load_vaults(self, page: int):
             self.selected_vault = ""
             self.ui_handler.render_pages(
                 page, self.ui_handler.vault_manager.get_vault_names(), self.ui_handler.frame_handler.subframe_1, self.ui_handler.open_vault, self.new_vault
             )
-    def open_vault(self, name: str): #move (UI handler)
+    def open_vault(self, name: str):
             self.ui_handler.app.selected_vault = name
             self.ui_handler.frame_handler.clear_subframes(self.frame_handler.subframe_2)
     
@@ -25,7 +25,7 @@ class Vault_Handler():
                 0, services, self.frame_handler.subframe_2, self.open_service, self.add_service
             )
 
-    def new_vault(self): #move (UI handler)
+    def new_vault(self): 
             new_vault_popup = self.ui_handler.create_popup("add vault")
     
             tk.Label(new_vault_popup, text="New vault Name").place(
