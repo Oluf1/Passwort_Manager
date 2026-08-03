@@ -41,7 +41,7 @@ def render_pages(
                     return
             new_x_button = tk.Button(frame, text=btn_text, command=add_command)
             new_x_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            ui_handler.font_manager.fit_font(new_x_button, text=btn_text)
+
         else:
             up_button = tk.Button(
                 frame,
@@ -51,7 +51,7 @@ def render_pages(
                 ),
             )
             up_button.place(relx=0, rely=0, relwidth=1, relheight=btn_size)
-            ui_handler.font_manager.fit_font(up_button, "page up")
+
         search_entry = tk.Entry(frame)
         if filter_str:
             search_entry.insert(0, filter_str)
@@ -76,7 +76,7 @@ def render_pages(
             button.place(
                 relheight=btn_size, relx=0, relwidth=1, rely=2 * btn_size + btn_size * i
             )
-            ui_handler.font_manager.fit_font(button, text_name)
+
         if end < len(items):
             down_button = tk.Button(
                 frame,
@@ -86,4 +86,5 @@ def render_pages(
                 ),
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
-            ui_handler.font_manager.fit_font(down_button, "page down")
+
+            ui_handler.apply_fonts(frame)

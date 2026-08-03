@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 from .frame_handler import Frame_Handler
 from .page_handler import render_pages
 from .config_ui import load_config 
-from .font_handler import Font_handler
+from .font_handler import apply_fonts
 from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
 class UI_handler:
@@ -24,7 +24,6 @@ class UI_handler:
         self.config = config
         self.app = App
         self.apply_fonts = self.font_manager.apply_fonts
-        self.font_handler = Font_handler(self)
         self.vault_handler = Vault_Handler(self)
         
         
@@ -55,6 +54,9 @@ class UI_handler:
         
     def load_main_menu(self):
         load_main_menu(self)
+
+    def apply_fonts(self,parent):
+        apply_fonts(parent,self.font_manager)
     
     def render_pages(self,page,items,frame,open_function,add_command,filter_str=None):
         render_pages(self,page,items,frame,open_function,add_command,filter_str)

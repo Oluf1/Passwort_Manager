@@ -20,6 +20,7 @@ class Vault:
                 data = json.load(f)
                 services = list(data["services"].keys())
                 return services
+            
     def add_service(self,new_name:str)-> None:
         with open(self.data_path)as services:
             data = json.load(services)

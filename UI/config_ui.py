@@ -78,7 +78,7 @@ def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
     ui_handler.font_manager.apply_fonts(parent)
 
 
-def open_vault_config( vault_name: str,ui_handler:UI_handler):
+def open_vault_config( vault_name: str,ui_handler:"UI_handler"):
         vault = ui_handler.vault_manager.vaults[vault_name]
         key_location = vault.key_path
         

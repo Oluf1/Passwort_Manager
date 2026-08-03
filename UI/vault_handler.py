@@ -4,7 +4,7 @@ if TYPE_CHECKING:
 from tkinter import messagebox
 import tkinter as tk
 class Vault_Handler():
-    def __init__(self,ui_handler:UI_handler):
+    def __init__(self,ui_handler:"UI_handler"):
           self.ui_handler = ui_handler
     def load_vaults(self, page: int):
             self.selected_vault = ""

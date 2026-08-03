@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from .UI_handler import UI_handler
 
 class ServiceHandler():
-    def __init__(self,ui_handler:UI_handler):
+    def __init__(self,ui_handler:"UI_handler"):
         self.ui_handler = ui_handler
     def add_service(self): #KEEP UI
             new_service_popup =self.ui_handler.create_popup("add service")
