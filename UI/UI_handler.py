@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from main import App #avoids Circular Importing#temporary so as to not break parts 
 from .frame_handler import Frame_Handler
 from .page_handler import render_pages
-from .load_config import load_config 
+from .config_ui import load_config 
 from .font_handler import Font_handler
 from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
@@ -47,14 +47,8 @@ class UI_handler:
     def load_vaults(self,page:int):
         self.vault_handler.load_vaults(page)
 
-    def new_vault(self):
-        self.app.new_vault()
-
     def open_vault(self,name:str):
         self.vault_handler.open_vault(name)
-
-    def open_vault(self,name):
-        self.app.open_vault(name)
 
     def load_config(self):
         load_config(self) 

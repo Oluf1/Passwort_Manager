@@ -5,11 +5,9 @@ import string
 import tkinter as tk
 from pathlib import Path 
 from tkinter import messagebox, simpledialog
-from typing import Callable
 
 from decrypt import decrypt
 from encrypt import encrypt
-#from managers import ConfigManager, ThemeManager,VaultManager,
 import managers
 from UI import  UI_handler
 
@@ -28,7 +26,7 @@ class App:
                                     self.VAULTMANAGER,
                                     self)
         
-        self.root = self.ui_handler.root#unsure of wether this should be moved to setup
+        self.root = self.ui_handler.root #unsure of wether this should be moved to setup
         
         self.frame_handler = self.ui_handler.frame_handler
         
@@ -48,38 +46,6 @@ class App:
         
     
         self.ui_handler.load_main_menu()
-
-
-    
-    def open_vault_config(self, vault_name: str): #move (UI hanlder)
-        vault = self.VAULTMANAGER.vaults[vault_name]
-        key_location = vault.key_path
-        
-        if vault.vault_type == "local":
-            save_file_location = vault.data_path
-        elif vault.vault_type == "server":
-            messagebox.showerror("Error", "server not yet implemented")
-            return
-        else:
-            return
-
-        def delete_vault():
-            if (
-                simpledialog.askstring("confirm deletion", "type vault name to delete")
-                != vault_name
-            ):
-                messagebox.showerror("Deletion canceled", "Vault name not matching")
-                return
-            Path(save_file_location).unlink()
-            Path(key_location).unlink()
-            self.VAULTMANAGER.delete_vault(vault_name)
-            self.ui_handler.load_config()
-
-        tk.Button(self.frame_handler.subframe_3, text="delete", command=delete_vault).place(
-            relheight=0.1, relwidth=1, relx=0, rely=0
-        )
-
-        self.FONT_MANAGER.apply_fonts(self.frame_handler.subframe_3)
 
 
     def new_vault(self): #move (UI handler)

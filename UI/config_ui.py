@@ -5,7 +5,8 @@ if TYPE_CHECKING:
     from.UI_handler import UI_handler
 from .Labelcombobox import Label_combobox
 from tkinter import messagebox
-
+from tkinter import simpledialog
+from pathlib import Path 
 
 def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
     temp_items_per_page = ui_handler.config.items_per_page
@@ -71,7 +72,38 @@ def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
 
     ui_handler.render_pages(
         0, ui_handler.vault_manager.get_vault_names(), ui_handler.frame_handler.subframe_2,
-        ui_handler.app.open_vault_config, ui_handler.app.new_vault
+        open_vault_config, ui_handler.vault_handler.new_vault
     )
 
     ui_handler.font_manager.apply_fonts(parent)
+
+
+def open_vault_config( vault_name: str,ui_handler:UI_handler):
+        vault = ui_handler.vault_manager.vaults[vault_name]
+        key_location = vault.key_path
+        
+        if vault.vault_type == "local":
+            save_file_location = vault.data_path
+        elif vault.vault_type == "server":
+            messagebox.showerror("Error", "server not yet implemented")
+            return
+        else:
+            return
+
+        def delete_vault():
+            if (
+                simpledialog.askstring("confirm deletion", "type vault name to delete")
+                != vault_name
+            ):
+                messagebox.showerror("Deletion canceled", "Vault name not matching")
+                return
+            Path(save_file_location).unlink()
+            Path(key_location).unlink()
+            ui_handler.vault_manager.delete_vault(vault_name)
+            ui_handler.load_config()
+
+        tk.Button(ui_handler.frame_handler.subframe_3, text="delete", command=delete_vault).place(
+            relheight=0.1, relwidth=1, relx=0, rely=0
+        )
+
+        ui_handler.font_manager.apply_fonts(ui_handler.frame_handler.subframe_3)
