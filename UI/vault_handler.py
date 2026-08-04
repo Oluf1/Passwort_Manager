@@ -9,20 +9,20 @@ class Vault_Handler():
     def load_vaults(self, page: int):
             self.selected_vault = ""
             self.ui_handler.render_pages(
-                page, self.ui_handler.vault_manager.get_vault_names(), self.ui_handler.frame_handler.subframe_1, self.ui_handler.open_vault, self.new_vault
+                page, self.ui_handler.vault_manager.get_vault_names(), self.ui_handler.frame_handler.subframe_1, self.ui_handler.open_vault, self.ui_handler.new_vault
             )
     def open_vault(self, name: str):
             self.ui_handler.app.selected_vault = name
-            self.ui_handler.frame_handler.clear_subframes(self.frame_handler.subframe_2)
+            self.ui_handler.frame_handler.clear_subframes(self.ui_handler.frame_handler.subframe_2)
     
-            vault = self.ui_handler.ui_handler.vaults[name]
+            vault = self.ui_handler.vault_manager.vaults[name]
             services: list[str] = []
-            services = self.ui_handler.vault_manager.get_services(vault)
+            services = vault.get_services()
             if services is None:
                 messagebox.showerror("Error","not a valid save type")
     
             self.ui_handler.render_pages(
-                0, services, self.frame_handler.subframe_2, self.open_service, self.add_service
+                0, services, self.ui_handler.frame_handler.subframe_2, self.ui_handler.open_service, self.ui_handler.add_service
             )
 
     def new_vault(self): 
@@ -61,6 +61,6 @@ class Vault_Handler():
             tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
                 relheight=0.1, rely=0.5, relx=0, relwidth=0.3
             )
-            new_vault_popup.after(10, self.FONT_MANAGER.apply_fonts, new_vault_popup)
-            new_vault_popup.transient(self.root)
+            new_vault_popup.after(10, self.ui_handler.apply_fonts, new_vault_popup)
+            new_vault_popup.transient(self.ui_handler.root)
             new_vault_popup.grab_set()

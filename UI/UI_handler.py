@@ -10,6 +10,8 @@ from .config_ui import load_config
 from .font_handler import apply_fonts
 from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
+from .service_handler import ServiceHandler
+
 class UI_handler:
     def __init__(self,
                  Font_Manager:Font_manager,
@@ -24,7 +26,7 @@ class UI_handler:
         self.config = config
         self.app = App
         self.apply_fonts = self.font_manager.apply_fonts
-        self.vault_handler = Vault_Handler(self)
+        
         
         
         self.setup()
@@ -40,6 +42,8 @@ class UI_handler:
         self.root.title("Password Manager")
 
         self.frame_handler = Frame_Handler(self)
+        self.vault_handler = Vault_Handler(self)
+        self.service_handler = ServiceHandler(self)
         
         load_main_menu(self)    
         
@@ -51,21 +55,26 @@ class UI_handler:
 
     def load_config(self):
         load_config(self) 
+
+    def new_vault(self):
+        self.vault_handler.new_vault()
         
     def load_main_menu(self):
         load_main_menu(self)
 
-    def apply_fonts(self,parent):
-        apply_fonts(parent,self.font_manager)
-    
-    def render_pages(self,page,items,frame,open_function,add_command,filter_str=None):
-        render_pages(self,page,items,frame,open_function,add_command,filter_str)
-    
     def apply_fonts(self,parent:tk.Frame):
-        self.font_handler.apply_fonts(parent)
+        apply_fonts(parent,self)
+    
+    def render_pages(self,page,items:list[str],frame,open_function,add_command,filter_str=None):
+        render_pages(self,page,items,frame,open_function,add_command,filter_str)
 
     def scale_toplevel(self,window: tk.Toplevel, size: float):
         scale_toplevel(window,size,self.theme_manager)
 
     def create_popup(self,title):
-        create_popup(title,self.root,self.theme_manager)
+        return create_popup(title,self.root,self.theme_manager)
+
+    def open_service(self,name:str):
+        self.service_handler.open_service(name)
+    def add_service(self):
+        self.service_handler.add_service()

@@ -17,33 +17,33 @@ class ServiceHandler():
                 relheight=0.1, relx=0, rely=0, relwidth=0.5
             )
 
-            def create_service():# move (password_data_manager)
+            def create_service():
                 new_name = name_entry.get()
 
                 services: list[str] = []
-                vault = self.ui_handler.vault_manager.vaults[self.selected_vault]
+                vault = self.ui_handler.vault_manager.vaults[self.ui_handler.app.selected_vault]
                 try:
                     vault.add_service(new_name)
                 except Exception as e:
                     messagebox.showerror("Error",e)
                 new_service_popup.destroy()
                 
-                self.ui_handler.open_vault(self.selected_vault)
+                self.ui_handler.open_vault(self.ui_handler.app.selected_vault)
 
             tk.Button(
                 new_service_popup, command=create_service, text="create service"
             ).place(relheight=0.1, rely=0.3, relx=0, relwidth=0.5)
 
-            new_service_popup.after(10, self.FONT_MANAGER.apply_fonts, new_service_popup)
-            new_service_popup.transient(self.root)
+            new_service_popup.after(10, self.ui_handler.apply_fonts, new_service_popup)
+            new_service_popup.transient(self.ui_handler.root)
             new_service_popup.grab_set()
 
-    def open_service(self, name: str):# KEEP
-        self.selected_service = name
+    def open_service(self, name: str):
+        self.ui_handler.app.selected_service = name
 
-        self.frame_handler.clear_subframes(self.frame_handler.subframe_3)
+        self.ui_handler.frame_handler.clear_subframes(self.ui_handler.frame_handler.subframe_3)
 
-        vault = self.VAULTMANAGER.vaults[self.selected_vault]
+        vault = self.ui_handler.vault_manager.vaults[self.ui_handler.app.selected_vault]
         Mails: list = []
         if vault.vault_type == "local":
             location = vault.data_path
@@ -52,4 +52,4 @@ class ServiceHandler():
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.ui_handler.render_pages(0, Mails, self.frame_handler.subframe_3, self.open_mail, self.add_mail)
+            self.ui_handler.render_pages(0, Mails, self.ui_handler.frame_handler.subframe_3, self.ui_handler.app.open_mail, self.ui_handler.app.add_mail)

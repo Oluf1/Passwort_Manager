@@ -2,6 +2,7 @@ from tkinter import messagebox
 import tkinter.font as tkfont
 
 def apply_fonts(parent,ui_handler):
+
     for widget in parent.winfo_children():
         if "text" in widget.keys():
             fit_font(widget, widget["text"],ui_handler)
@@ -34,10 +35,9 @@ def fit_font(widget, text: str,ui_handler):
 
             font.configure(size=best)
 
-            if "text" in widget.keys():
-                widget.config(
-                    font=font, text=text, fg=ui_handler.font_manager.text_color, bg=ui_handler.font_manager.widget_color
-                )
+            widget.config(
+                font=font, text=text, fg=ui_handler.font_manager.text_color, bg=ui_handler.font_manager.widget_color
+            )
 
         except Exception as e:
             messagebox.showerror("Error in fit_font", str(e))

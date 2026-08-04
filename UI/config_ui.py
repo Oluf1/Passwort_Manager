@@ -72,7 +72,7 @@ def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
 
     ui_handler.render_pages(
         0, ui_handler.vault_manager.get_vault_names(), ui_handler.frame_handler.subframe_2,
-        open_vault_config, ui_handler.vault_handler.new_vault
+        open_vault_config, ui_handler.new_vault
     )
 
     ui_handler.font_manager.apply_fonts(parent)

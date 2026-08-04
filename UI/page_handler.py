@@ -27,14 +27,16 @@ def render_pages(
                     filtered_items.append(item)
         else:
             filtered_items = items
+
         current_items = filtered_items[start:end]
+
         if page == 0:
             match add_command:
-                case ui_handler.app.new_vault:
+                case ui_handler.new_vault:
                     btn_text = "Add vault"
                 case ui_handler.app.add_mail:
                     btn_text = "add mail"
-                case ui_handler.app.add_service:
+                case ui_handler.add_service:
                     btn_text = "add service"
                 case _:
                     messagebox.showerror("Error", f"wrong add_command function given: {add_command}")
@@ -87,4 +89,4 @@ def render_pages(
             )
             down_button.place(relx=0, relheight=btn_size, rely=1 - btn_size, relwidth=1)
 
-            ui_handler.apply_fonts(frame)
+        ui_handler.apply_fonts(frame)

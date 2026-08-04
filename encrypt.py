@@ -88,6 +88,7 @@ def encrypt(
         "Nonce": base64.b64encode(nonce).decode(),
         "salt": base64.b64encode(salt).decode(),
         "iterations": kdf_iterations,
+        "Kdf_type":Kdf_type,
         "ciphertext": base64.b64encode(encrypted_password).decode(),
         "aad": base64.b64encode(aad).decode(),
         "count": count,
@@ -112,10 +113,10 @@ def encrypt(
                     count +=1 
             data_to_save["count"] = count
         
-        for entry in database["services"][service]:
-            if entry["Mail"] == mail and entry["count"]== count:
+        for i, entry in enumerate(database["services"][service]):
+            if entry["Mail"] == mail and entry["count"] == count:
                 data_to_save["Mail"] = new_mail
-                database["services"][service][entry] = data_to_save
+                database["services"][service][i] = data_to_save
                 break
         else:
             messagebox.showerror("Error","no matching entry found")
