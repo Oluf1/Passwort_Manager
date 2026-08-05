@@ -1,12 +1,13 @@
 import tkinter as tk
 from .main_menu import load_main_menu
-from managers import Font_manager, ThemeManager,ConfigManager,VaultManager
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from main import App #avoids Circular Importing#temporary so as to not break parts 
+    from managers import Font_manager, ThemeManager,ConfigManager,VaultManager
 from .frame_handler import Frame_Handler
 from .page_handler import render_pages
-from .config_ui import load_config 
+from .config_ui import ConfigUI
 from .font_handler import apply_fonts
 from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
@@ -14,10 +15,10 @@ from .service_handler import ServiceHandler
 
 class UI_handler:
     def __init__(self,
-                 Font_Manager:Font_manager,
-                 theme_manager:ThemeManager,
-                 config:ConfigManager,
-                 vault_manager:VaultManager,
+                 Font_Manager:"Font_manager",
+                 theme_manager:"ThemeManager",
+                 config:"ConfigManager",
+                 vault_manager:"VaultManager",
                  App:"App") -> None:
         
         self.vault_manager = vault_manager
@@ -25,8 +26,7 @@ class UI_handler:
         self.font_manager = Font_Manager
         self.config = config
         self.app = App
-        self.apply_fonts = self.font_manager.apply_fonts
-        
+        self.config_ui = ConfigUI(self)
         
         
         self.setup()
@@ -54,7 +54,7 @@ class UI_handler:
         self.vault_handler.open_vault(name)
 
     def load_config(self):
-        load_config(self) 
+        self.config_ui.load_config()
 
     def new_vault(self):
         self.vault_handler.new_vault()

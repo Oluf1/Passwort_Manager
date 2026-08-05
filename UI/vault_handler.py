@@ -3,6 +3,9 @@ if TYPE_CHECKING:
     from .UI_handler import UI_handler
 from tkinter import messagebox
 import tkinter as tk
+from tkinter import filedialog
+from pathlib import Path
+
 class Vault_Handler():
     def __init__(self,ui_handler:"UI_handler"):
           self.ui_handler = ui_handler
@@ -52,9 +55,10 @@ class Vault_Handler():
                     messagebox.showerror("Error", "Server saving not yet implemented")
                     return
                 vault_name = vault_name_entry.get()
-                
-                self.ui_handler.create_vault(vault_name)
-                
+                try:
+                    self.ui_handler.vault_manager.create_local_vault(vault_name)
+                except Exception as e:
+                     messagebox.showerror("Error",e)
                 new_vault_popup.destroy()
                 self.ui_handler.load_vaults(0)
     
@@ -64,3 +68,25 @@ class Vault_Handler():
             new_vault_popup.after(10, self.ui_handler.apply_fonts, new_vault_popup)
             new_vault_popup.transient(self.ui_handler.root)
             new_vault_popup.grab_set()
+
+
+
+def get_paths():
+        data_dir = filedialog.askopenfilename(
+            initialdir="/",
+            title="select save directory",
+            filetypes=(("json files", "*.json*"),),
+        )
+        if not data_dir:
+            raise Exception("Error: No data directory chosen")
+        key_dir = filedialog.askopenfilename(
+            initialdir="/",
+            title="select key directory",
+            filetypes=(("Text files", "*.txt*"),),
+        )
+        if not key_dir:
+            raise Exception("Error: No key directory chosen")
+        
+        data_path = Path(data_dir)
+        key_path = Path(key_dir)
+        return data_path, key_path

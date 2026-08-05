@@ -1,87 +1,164 @@
 import tkinter as tk
 import tkinter.font as tkfont
+from tkinter import messagebox, simpledialog
+from pathlib import Path
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from.UI_handler import UI_handler
+
 from .Labelcombobox import Label_combobox
-from tkinter import messagebox
-from tkinter import simpledialog
-from pathlib import Path 
 
-def load_config(ui_handler:"UI_handler"):  # move (config UI manager)
-    temp_items_per_page = ui_handler.config.items_per_page
-    ui_handler.frame_handler.clear_subframes(ui_handler.frame_handler.subframe_1)
+if TYPE_CHECKING:
+    from .UI_handler import UI_handler
 
-    parent = ui_handler.frame_handler.subframe_1
-    fonts = list(tkfont.families())
-    themes = list(ui_handler.theme_manager.theme_keys)
 
-    fonts_combolabel = Label_combobox(parent, "Fonts", fonts, ui_handler.config.font_family, 0.15, 0.1)
-    themes_combolabel = Label_combobox(parent, "Theme", themes, ui_handler.config.theme_name, 0.15, 0.35)
-    kdf_combolabel = Label_combobox(
-        parent, "Default Kdf", ui_handler.config.supported_kdfs, ui_handler.config.default_kdf, 0.15, 0.5
-    )
+class ConfigUI:
+    def __init__(self, ui_handler: "UI_handler"):
+        self.ui_handler = ui_handler
+        self.temp_items_per_page = ui_handler.config.items_per_page
 
-    items_per_page_label = tk.Label(parent)
-    items_per_page_label.place(relheight=0.1, relwidth=0.8, relx=0, rely=0.25)
+    def load_config(self):
+        self.temp_items_per_page = self.ui_handler.config.items_per_page
 
-    def update_items_per_page_label():
-        items_per_page_label.config(
-            text=f"items per page: {temp_items_per_page + 3}"
+        self.ui_handler.frame_handler.clear_subframes(
+            self.ui_handler.frame_handler.subframe_1
         )
 
-    def change_items_per_page(change: int):
-        nonlocal temp_items_per_page
-        temp_items_per_page = max(3, min(temp_items_per_page + change, 20))
-        update_items_per_page_label()
+        parent = self.ui_handler.frame_handler.subframe_1
+        fonts = list(tkfont.families())
+        themes = list(self.ui_handler.theme_manager.theme_keys)
 
-    update_items_per_page_label()
+        fonts_combolabel = Label_combobox(
+            parent,
+            "Fonts",
+            fonts,
+            self.ui_handler.config.font_family,
+            0.15,
+            0.1,
+        )
 
-    for symbol, change, rely in (("+", 1, 0.25), ("-", -1, 0.3)):
+        themes_combolabel = Label_combobox(
+            parent,
+            "Theme",
+            themes,
+            self.ui_handler.config.theme_name,
+            0.15,
+            0.35,
+        )
+
+        kdf_combolabel = Label_combobox(
+            parent,
+            "Default Kdf",
+            self.ui_handler.config.supported_kdfs,
+            self.ui_handler.config.default_kdf,
+            0.15,
+            0.5,
+        )
+
+        items_per_page_label = tk.Label(parent)
+        items_per_page_label.place(
+            relheight=0.1,
+            relwidth=0.8,
+            relx=0,
+            rely=0.25,
+        )
+
+        self._update_items_per_page_label(items_per_page_label)
+
+        for symbol, change, rely in (
+            ("+", 1, 0.25),
+            ("-", -1, 0.3),
+        ):
+            tk.Button(
+                parent,
+                text=symbol,
+                command=lambda c=change, lbl=items_per_page_label: self._change_items_per_page(
+                    c, lbl
+                ),
+            ).place(
+                rely=rely,
+                relheight=0.05,
+                relx=0.8,
+                relwidth=0.2,
+            )
+
         tk.Button(
-            parent, text=symbol, command=lambda c=change: change_items_per_page(c)
-        ).place(rely=rely, relheight=0.05, relx=0.8, relwidth=0.2)
+            parent,
+            text="Apply",
+            command=lambda: self._apply_changes(
+                fonts,
+                themes,
+                fonts_combolabel,
+                themes_combolabel,
+                kdf_combolabel,
+                parent,
+            ),
+        ).place(
+            relheight=0.1,
+            relwidth=1,
+            relx=0,
+            rely=0,
+        )
 
-    def apply_changes():
+        self.ui_handler.render_pages(
+            0,
+            self.ui_handler.vault_manager.get_vault_names(),
+            self.ui_handler.frame_handler.subframe_2,
+            self.open_vault_config,
+            self.ui_handler.new_vault,
+        )
+
+        self.ui_handler.apply_fonts(parent)
+
+    def _update_items_per_page_label(self, label: tk.Label):
+        label.config(
+            text=f"items per page: {self.temp_items_per_page + 3}"
+        )
+
+    def _change_items_per_page(self, change: int, label: tk.Label):
+        self.temp_items_per_page = max(
+            3,
+            min(self.temp_items_per_page + change, 20),
+        )
+        self._update_items_per_page_label(label)
+
+    def _apply_changes(
+        self,
+        fonts,
+        themes,
+        fonts_combolabel,
+        themes_combolabel,
+        kdf_combolabel,
+        parent,
+    ):
         selected_font = fonts_combolabel.combobox.get()
         selected_theme = themes_combolabel.combobox.get()
 
         if selected_font not in fonts:
             messagebox.showerror("Error", "Not a font")
             return
+
         if selected_theme not in themes:
             messagebox.showerror("Error", "Not a Theme")
             return
 
-        ui_handler.config.items_per_page = temp_items_per_page
-        ui_handler.config.font_family = selected_font
-        ui_handler.config.theme_name = selected_theme
-        ui_handler.config.default_kdf = kdf_combolabel.combobox.get()
-        ui_handler.config.save()
+        self.ui_handler.config.items_per_page = self.temp_items_per_page
+        self.ui_handler.config.font_family = selected_font
+        self.ui_handler.config.theme_name = selected_theme
+        self.ui_handler.config.default_kdf = kdf_combolabel.combobox.get()
+        self.ui_handler.config.save()
 
-        ui_handler.theme_manager.change_theme(ui_handler.config.theme_name)
-        ui_handler.frame_handler.apply_theme_on_frames()
-        ui_handler.font_manager.apply_fonts(parent)
-        ui_handler.load_main_menu()
-        load_config(ui_handler)
-        
+        self.ui_handler.theme_manager.change_theme(
+            self.ui_handler.config.theme_name
+        )
+        self.ui_handler.frame_handler.apply_theme_on_frames()
+        self.ui_handler.apply_fonts(parent)
+        self.ui_handler.load_main_menu()
 
-    tk.Button(parent, text="Apply", command=apply_changes).place(
-        relheight=0.1, relwidth=1, relx=0, rely=0
-    )
+        self.load_config()
 
-    ui_handler.render_pages(
-        0, ui_handler.vault_manager.get_vault_names(), ui_handler.frame_handler.subframe_2,
-        open_vault_config, ui_handler.new_vault
-    )
-
-    ui_handler.font_manager.apply_fonts(parent)
-
-
-def open_vault_config( vault_name: str,ui_handler:"UI_handler"):
-        vault = ui_handler.vault_manager.vaults[vault_name]
+    def open_vault_config(self, vault_name: str):
+        vault = self.ui_handler.vault_manager.vaults[vault_name]
         key_location = vault.key_path
-        
+
         if vault.vault_type == "local":
             save_file_location = vault.data_path
         elif vault.vault_type == "server":
@@ -92,18 +169,35 @@ def open_vault_config( vault_name: str,ui_handler:"UI_handler"):
 
         def delete_vault():
             if (
-                simpledialog.askstring("confirm deletion", "type vault name to delete")
+                simpledialog.askstring(
+                    "confirm deletion",
+                    "type vault name to delete",
+                )
                 != vault_name
             ):
-                messagebox.showerror("Deletion canceled", "Vault name not matching")
+                messagebox.showerror(
+                    "Deletion canceled",
+                    "Vault name not matching",
+                )
                 return
+
             Path(save_file_location).unlink()
             Path(key_location).unlink()
-            ui_handler.vault_manager.delete_vault(vault_name)
-            ui_handler.load_config()
 
-        tk.Button(ui_handler.frame_handler.subframe_3, text="delete", command=delete_vault).place(
-            relheight=0.1, relwidth=1, relx=0, rely=0
+            self.ui_handler.vault_manager.delete_vault(vault_name)
+            self.load_config()
+
+        tk.Button(
+            self.ui_handler.frame_handler.subframe_3,
+            text="delete",
+            command=delete_vault,
+        ).place(
+            relheight=0.1,
+            relwidth=1,
+            relx=0,
+            rely=0,
         )
 
-        ui_handler.font_manager.apply_fonts(ui_handler.frame_handler.subframe_3)
+        self.ui_handler.apply_fonts(
+            self.ui_handler.frame_handler.subframe_3
+        )

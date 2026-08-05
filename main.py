@@ -9,7 +9,7 @@ from tkinter import messagebox, simpledialog
 from decrypt import decrypt
 from encrypt import encrypt
 import managers
-from UI import  UI_handler
+from UI.UI_handler import UI_handler
 
 
 
