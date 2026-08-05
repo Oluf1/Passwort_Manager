@@ -34,7 +34,7 @@ def render_pages(
             match add_command:
                 case ui_handler.new_vault:
                     btn_text = "Add vault"
-                case ui_handler.app.add_mail:
+                case ui_handler.add_mail:
                     btn_text = "add mail"
                 case ui_handler.add_service:
                     btn_text = "add service"

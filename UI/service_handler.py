@@ -50,4 +50,4 @@ class ServiceHandler():
 
             for ele in data["services"][name]:
                 Mails.append((ele["Mail"], ele["count"]))
-            self.ui_handler.render_pages(0, Mails, self.ui_handler.frame_handler.subframe_3, self.ui_handler.app.open_mail, self.ui_handler.app.add_mail)
+            self.ui_handler.render_pages(0, Mails, self.ui_handler.frame_handler.subframe_3, self.ui_handler.open_mail, self.ui_handler.add_mail)

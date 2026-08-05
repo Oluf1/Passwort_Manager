@@ -8,11 +8,11 @@ def scale_toplevel( window: tk.Toplevel, size: float, theme_manager):
         y = int((screen_height - height) * 0.5)
         window.geometry(f"{width}x{height}+{x}+{y}")
         window.config(bg=theme_manager.top_level_color)
-def create_popup(title:str,root:tk.Tk,theme_manager,ui_handler):
+def create_popup(title:str,root:tk.Tk,theme_manager,ui_handler,size:float):
         popup = tk.Toplevel(root)
         popup.title(title)
         popup.resizable(False, False)
-        scale_toplevel(popup, .5,theme_manager)
+        scale_toplevel(popup, size,theme_manager)
         popup.after(10, ui_handler.apply_fonts, popup)
         popup.transient(ui_handler.root)
         popup.grab_set()

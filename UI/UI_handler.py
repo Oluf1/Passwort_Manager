@@ -12,6 +12,7 @@ from .font_handler import apply_fonts
 from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
 from .service_handler import ServiceHandler
+from .mail_handler import MailManager
 
 class UI_handler:
     def __init__(self,
@@ -26,7 +27,7 @@ class UI_handler:
         self.font_manager = Font_Manager
         self.config = config
         self.app = App
-        self.config_ui = ConfigUI(self)
+        
         
         
         self.setup()
@@ -40,10 +41,11 @@ class UI_handler:
             self.root.attributes("-zoomed", True)
             
         self.root.title("Password Manager")
-
+        self.config_ui = ConfigUI(self)
         self.frame_handler = Frame_Handler(self)
         self.vault_handler = Vault_Handler(self)
         self.service_handler = ServiceHandler(self)
+        self.mail_manager= MailManager(self)
         
         load_main_menu(self)    
         
@@ -71,10 +73,15 @@ class UI_handler:
     def scale_toplevel(self,window: tk.Toplevel, size: float):
         scale_toplevel(window,size,self.theme_manager)
 
-    def create_popup(self,title):
-        return create_popup(title,self.root,self.theme_manager,self)
+    def create_popup(self,title,size=0.5):
+        return create_popup(title,self.root,self.theme_manager,self,size)
 
     def open_service(self,name:str):
         self.service_handler.open_service(name)
     def add_service(self):
         self.service_handler.add_service()
+
+    def open_mail(self,name:str):
+        self.mail_manager.open_mail(name)
+    def add_mail(self):
+        self.mail_manager.add_mail()
