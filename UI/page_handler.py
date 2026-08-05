@@ -27,7 +27,7 @@ def render_pages(
                     filtered_items.append(item)
         else:
             filtered_items = items
-
+        print(filtered_items)
         current_items = filtered_items[start:end]
 
         if page == 0:
@@ -79,7 +79,7 @@ def render_pages(
                 relheight=btn_size, relx=0, relwidth=1, rely=2 * btn_size + btn_size * i
             )
 
-        if end < len(items):
+        if end < len(filtered_items):
             down_button = tk.Button(
                 frame,
                 text="page down",
