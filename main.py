@@ -47,75 +47,175 @@ class App:
     
         self.ui_handler.load_main_menu()
 
-
-    def open_mail(self, name: str): #KEEP UI
+    def open_mail(self, name: str):  # KEEP UI
         mail_popup = self.ui_handler.create_popup(name)
 
+        big_font = ("Arial", 16)
+        button_font = ("Arial", 14, "bold")
 
-        tk.Label(mail_popup, text=f"service: {self.selected_service}").place(
-            relx=0, rely=0, relheight=0.15
+        tk.Label(
+            mail_popup,
+            text=f"service: {self.selected_service}",
+            font=big_font
+        ).place(
+            relx=0, rely=0, relheight=0.15, relwidth=1
         )
-        password_Label = tk.Label(mail_popup, text="password: *****")
-        password_Label.place(relx=0, relheight=0.15, rely=0.15)
 
-        def decrypt_password():# move (password_data_manager)
+        asterisk_str = "*" * (random.randint(0, 4) + 5)
+
+        password_Label = tk.Label(
+            mail_popup,
+            text=f"password: {asterisk_str}",
+            font=big_font
+        )
+        password_Label.place(
+            relx=0, rely=0.15, relheight=0.15, relwidth=1
+        )
+
+        def decrypt_password():
             master_password = simpledialog.askstring(
                 "enter Masterpassword", "Masterpassword:"
             )
+
             if master_password is not None:
                 master_password = master_password.encode("utf-8")
             else:
                 messagebox.showerror("Error", "Masterpassword can not be empty")
                 return
+
             Mail = name[0]
             count = int(name[1])
+
             decrypted_password = decrypt(
-                master_password, self.selected_service, Mail, count, self.selected_vault,self
+                master_password,
+                self.selected_service,
+                Mail,
+                count,
+                self.selected_vault,
+                self
             )
+
             password_Label.configure(text=f"Password: {decrypted_password}")
+
             self.root.clipboard_clear()
             self.root.clipboard_append(decrypted_password)
+
             self.root.after(
                 30000,
-                lambda: (self.root.clipboard_clear(), self.root.clipboard_append("")),
+                lambda: (
+                    self.root.clipboard_clear(),
+                    self.root.clipboard_append("")
+                ),
             )
 
-        tk.Button(mail_popup, text="decrypt Password", command=decrypt_password).place(
-            relx=0.3, rely=0.15, relheight=0.15
+        tk.Button(
+            mail_popup,
+            text="decrypt Password",
+            font=button_font
+        ).place(
+            relx=0.2,
+            rely=0.35,
+            relheight=0.15,
+            relwidth=0.25
         )
 
-        def update_password():# move (password_data_manager)
+
+        def update_password():
             new_data_popup = tk.Toplevel(self.root)
             self.ui_handler.scale_toplevel(new_data_popup, 0.3)
+
+            popup_font = ("Arial", 14)
+
             mail = name[0]
-            new_name_entry = tk.Entry(new_data_popup)
-            new_name_entry.insert(0, mail)
-            new_name_entry.place(relx=0, relheight=0.1, rely=0.1, relwidth=1)
-            tk.Label(new_data_popup, text="new_mail").place(
-                relx=0, rely=0, relheight=0.1
+
+            tk.Label(
+                new_data_popup,
+                text="new mail",
+                font=popup_font
+            ).place(
+                relx=0, rely=0, relheight=0.1, relwidth=1
             )
-            new_password_entry = tk.Entry(new_data_popup)
-            tk.Label(new_data_popup, text="new Password").place(
-                relx=0, relheight=0.1, rely=0.2
+
+            new_name_entry = tk.Entry(
+                new_data_popup,
+                font=popup_font
+            )
+            new_name_entry.insert(0, mail)
+            new_name_entry.place(
+                relx=0,
+                rely=0.1,
+                relheight=0.1,
+                relwidth=1
+            )
+
+            tk.Label(
+                new_data_popup,
+                text="new Password",
+                font=popup_font
+            ).place(
+                relx=0,
+                rely=0.2,
+                relheight=0.1,
+                relwidth=1
+            )
+
+            new_password_entry = tk.Entry(
+                new_data_popup,
+                font=popup_font
             )
 
             def generate_password():
                 length = random.randint(0, 8) + 30
                 alphabet = string.ascii_letters + string.digits + string.punctuation
-                password = "".join(secrets.choice(alphabet) for _ in range(length))
+                password = "".join(
+                    secrets.choice(alphabet)
+                    for _ in range(length)
+                )
+
                 new_password_entry.delete(0, tk.END)
                 new_password_entry.insert(0, password)
 
             tk.Button(
-                new_data_popup, text="generate password", command=generate_password
-            ).place(relx=0.5, relheight=0.1, rely=0.2)
-            new_password_entry.place(relx=0, relheight=0.1, rely=0.3, relwidth=1)
-
-            new_master_entry = tk.Entry(new_data_popup)
-            tk.Label(new_data_popup, text="new Master password").place(
-                relx=0, relheight=0.1, rely=0.4
+                new_data_popup,
+                text="generate password",
+                font=button_font,
+                command=generate_password
+            ).place(
+                relx=0.5,
+                rely=0.3,
+                relheight=0.1,
+                relwidth=0.5
             )
-            new_master_entry.place(relx=0, rely=0.5, relheight=0.1, relwidth=1)
+
+            new_password_entry.place(
+                relx=0,
+                rely=0.3,
+                relheight=0.1,
+                relwidth=0.5
+            )
+
+            tk.Label(
+                new_data_popup,
+                text="new Master password",
+                font=popup_font
+            ).place(
+                relx=0,
+                rely=0.45,
+                relheight=0.1,
+                relwidth=1
+            )
+
+            new_master_entry = tk.Entry(
+                new_data_popup,
+                font=popup_font
+            )
+
+            new_master_entry.place(
+                relx=0,
+                rely=0.55,
+                relheight=0.1,
+                relwidth=1
+            )
 
             def call_encryption():
                 new_master = new_master_entry.get()
@@ -123,8 +223,12 @@ class App:
                 new_password = new_password_entry.get()
 
                 if not new_master or not new_name or not new_password:
-                    messagebox.showerror("Error", "No field can be left empty")
+                    messagebox.showerror(
+                        "Error",
+                        "No field can be left empty"
+                    )
                     return
+
                 encrypt(
                     new_master.encode(),
                     new_password.encode(),
@@ -136,19 +240,36 @@ class App:
                     new_name,
                     self
                 )
+
                 new_data_popup.destroy()
 
-            tk.Button(new_data_popup, command=call_encryption, text="continue").place(
-                relx=0, rely=0.6, relheight=0.1
+            tk.Button(
+                new_data_popup,
+                text="continue",
+                font=button_font,
+                command=call_encryption
+            ).place(
+                relx=0,
+                rely=0.7,
+                relheight=0.15,
+                relwidth=1
             )
 
             new_data_popup.transient(self.root)
             new_data_popup.grab_set()
 
-        tk.Button(mail_popup, text="change Password", command=update_password).place(
-            relx=0.6, rely=0.15, relheight=0.15
-        )
 
+        tk.Button(
+            mail_popup,
+            text="change Password",
+            font=button_font,
+            command=update_password
+        ).place(
+            relx=0.55,
+            rely=0.35,
+            relheight=0.15,
+            relwidth=0.3
+        )
 
     def add_mail(self): # KEEP UI
         add_mail_popup = self.ui_handler.create_popup("add mail")

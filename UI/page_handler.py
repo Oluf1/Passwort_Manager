@@ -23,11 +23,11 @@ def render_pages(
         filtered_items = []
         if filter_str:
             for item in items:
-                if filter_str in item:
+                item_check = item[0] if isinstance(item,tuple) else item
+                if filter_str in item_check:
                     filtered_items.append(item)
         else:
             filtered_items = items
-        print(filtered_items)
         current_items = filtered_items[start:end]
 
         if page == 0:
