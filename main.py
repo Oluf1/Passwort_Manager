@@ -111,7 +111,8 @@ class App:
         tk.Button(
             mail_popup,
             text="decrypt Password",
-            font=button_font
+            font=button_font,
+            command=decrypt_password
         ).place(
             relx=0.2,
             rely=0.35,
@@ -121,8 +122,8 @@ class App:
 
 
         def update_password():
-            new_data_popup = tk.Toplevel(self.root)
-            self.ui_handler.scale_toplevel(new_data_popup, 0.3)
+            new_data_popup = self.ui_handler.create_popup("new password")
+            self.ui_handler.scale_toplevel(new_data_popup, 0.3) 
 
             popup_font = ("Arial", 14)
 
@@ -242,6 +243,8 @@ class App:
                 )
 
                 new_data_popup.destroy()
+                new_data_popup.destroy()
+                self.open_mail(name)
 
             tk.Button(
                 new_data_popup,
@@ -254,9 +257,7 @@ class App:
                 relheight=0.15,
                 relwidth=1
             )
-
-            new_data_popup.transient(self.root)
-            new_data_popup.grab_set()
+            
 
 
         tk.Button(

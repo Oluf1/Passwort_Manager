@@ -36,7 +36,7 @@ def fit_font(widget, text: str,ui_handler):
             font.configure(size=best)
 
             widget.config(
-                font=font, text=text, fg=ui_handler.font_manager.text_color, bg=ui_handler.font_manager.widget_color
+                font=font, text=text, fg=ui_handler.font_manager.text_color, bg=ui_handler.theme_manager.button_color
             )
 
         except Exception as e:
