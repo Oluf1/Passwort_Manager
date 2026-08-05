@@ -1,39 +1,27 @@
-import json
-import random
-import secrets
-import string
-import tkinter as tk
-from pathlib import Path 
-from tkinter import messagebox, simpledialog
-
-from decrypt import decrypt
-from encrypt import encrypt
 import managers
 from UI.UI_handler import UI_handler
-
-
 
 class App:
     CONFIG = managers.CONFIG
     THEME_MANAGER = managers.THEME_MANAGER
-    VAULTMANAGER = managers.VAULT_MANAGER
     FONT_MANAGER = managers.FONT_MANAGER
     
     def __init__(self):
+        self.VAULTMANAGER = managers.VaultManager(self)
         self.ui_handler = UI_handler(self.FONT_MANAGER,
                                     self.THEME_MANAGER,
                                     self.CONFIG,
                                     self.VAULTMANAGER,
                                     self)
         
-        self.root = self.ui_handler.root #unsure of wether this should be moved to setup
+
         
         self.frame_handler = self.ui_handler.frame_handler
         
         self.setup()
 
 
-        self.root.mainloop()
+        
 
     def setup(self): #KEEP
         
@@ -44,8 +32,9 @@ class App:
         self.supported_kdfs = ["Argon2", "PBKDF2"]
         self.THEME_MANAGER.change_theme(self.CONFIG.theme_name)
         
-    
+        
         self.ui_handler.load_main_menu()
+        self.ui_handler.root.mainloop()
 
     
 

@@ -13,6 +13,7 @@ from .toplevel_handler import scale_toplevel,create_popup
 from .vault_handler import Vault_Handler
 from .service_handler import ServiceHandler
 from .mail_handler import MailManager
+from tkinter import messagebox
 
 class UI_handler:
     def __init__(self,
@@ -85,3 +86,6 @@ class UI_handler:
         self.mail_manager.open_mail(name)
     def add_mail(self):
         self.mail_manager.add_mail()
+
+    def messagebox_error(self,error:str)->None:
+        messagebox.showerror("Error",error)

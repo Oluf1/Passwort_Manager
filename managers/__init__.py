@@ -5,7 +5,6 @@ from .font_manager import Font_manager
 
 CONFIG = ConfigManager()
 THEME_MANAGER = ThemeManager()
-VAULT_MANAGER = VaultManager()
 FONT_MANAGER = Font_manager()
 
 CONFIG.load()

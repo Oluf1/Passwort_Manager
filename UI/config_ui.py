@@ -133,11 +133,11 @@ class ConfigUI:
         selected_theme = themes_combolabel.combobox.get()
 
         if selected_font not in fonts:
-            messagebox.showerror("Error", "Not a font")
+            self.ui_handler.show_error("Not a font")
             return
 
         if selected_theme not in themes:
-            messagebox.showerror("Error", "Not a Theme")
+            self.ui_handler.show_error("Not a Theme")
             return
 
         self.ui_handler.config.items_per_page = self.temp_items_per_page
@@ -162,7 +162,7 @@ class ConfigUI:
         if vault.vault_type == "local":
             save_file_location = vault.data_path
         elif vault.vault_type == "server":
-            messagebox.showerror("Error", "server not yet implemented")
+            self.ui_handler.show_error("server not yet implemented")
             return
         else:
             return

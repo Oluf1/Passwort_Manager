@@ -52,15 +52,17 @@ class MailManager:
 
             Mail = name[0]
             count = int(name[1])
-
-            decrypted_password = decrypt(
-                master_password,
-                self.ui_handler.app.selected_service,
-                Mail,
-                count,
-                self.ui_handler.app.selected_vault,
-                self.ui_handler.app
-            )
+            try:
+                decrypted_password = decrypt(
+                    master_password,
+                    self.ui_handler.app.selected_service,
+                    Mail,
+                    count,
+                    self.ui_handler.app.selected_vault,
+                    self.ui_handler.app
+                )
+            except Exception as error:
+                self.ui_handler.show_error(error)
 
             password_Label.configure(text=f"Password: {decrypted_password}")
 
@@ -193,19 +195,20 @@ class MailManager:
                         "No field can be left empty"
                     )
                     return
-
-                encrypt(
-                    new_master.encode(),
-                    new_password.encode(),
-                    self.ui_handler.app.selected_service,
-                    self.ui_handler.app.selected_vault,
-                    name[0],
-                    int(name[1]),
-                    True,
-                    new_name,
-                    self.ui_handler.app
-                )
-
+                try:
+                    encrypt(
+                        new_master.encode(),
+                        new_password.encode(),
+                        self.ui_handler.app.selected_service,
+                        self.ui_handler.app.selected_vault,
+                        name[0],
+                        int(name[1]),
+                        True,
+                        new_name,
+                        self.ui_handler.app
+                    )
+                except Exception as error:
+                    self.ui_handler.show_error(error)
                 new_data_popup.destroy()
                 mail_popup.destroy()
                 self.open_mail(name)

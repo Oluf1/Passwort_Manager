@@ -119,8 +119,7 @@ def encrypt(
                 database["services"][service][i] = data_to_save
                 break
         else:
-            messagebox.showerror("Error","no matching entry found")
-            return
+            raise Exception("no matching entry found")
     
     with open(data_path, "w") as f:
         json.dump(database, f, indent=2)
