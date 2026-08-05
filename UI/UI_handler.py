@@ -72,7 +72,7 @@ class UI_handler:
         scale_toplevel(window,size,self.theme_manager)
 
     def create_popup(self,title):
-        return create_popup(title,self.root,self.theme_manager)
+        return create_popup(title,self.root,self.theme_manager,self)
 
     def open_service(self,name:str):
         self.service_handler.open_service(name)

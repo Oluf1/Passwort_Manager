@@ -34,9 +34,7 @@ class ServiceHandler():
                 new_service_popup, command=create_service, text="create service"
             ).place(relheight=0.1, rely=0.3, relx=0, relwidth=0.5)
 
-            new_service_popup.after(10, self.ui_handler.apply_fonts, new_service_popup)
-            new_service_popup.transient(self.ui_handler.root)
-            new_service_popup.grab_set()
+
 
     def open_service(self, name: str):
         self.ui_handler.app.selected_service = name

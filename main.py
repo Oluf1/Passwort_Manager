@@ -47,11 +47,10 @@ class App:
     
         self.ui_handler.load_main_menu()
 
-    def open_mail(self, name: str): #KEEP UI
-        mail_popup = tk.Toplevel(self.root)
 
-        self.ui_handler.scale_toplevel(mail_popup, 0.5)
-        mail_popup.title(name)
+    def open_mail(self, name: str): #KEEP UI
+        mail_popup = self.ui_handler.create_popup(name)
+
 
         tk.Label(mail_popup, text=f"service: {self.selected_service}").place(
             relx=0, rely=0, relheight=0.15
@@ -150,8 +149,6 @@ class App:
             relx=0.6, rely=0.15, relheight=0.15
         )
 
-        mail_popup.transient(self.root)
-        mail_popup.grab_set()
 
     def add_mail(self): # KEEP UI
         add_mail_popup = self.ui_handler.create_popup("add mail")
@@ -216,9 +213,7 @@ class App:
         tk.Button(add_mail_popup, text="add", command=add_entry).place(
             relx=0, rely=0.9, relheight=0.1
         )
-        add_mail_popup.after(10, self.FONT_MANAGER.apply_fonts, add_mail_popup)
-        add_mail_popup.transient(self.root)
-        add_mail_popup.grab_set()
+
 
     
 

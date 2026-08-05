@@ -28,6 +28,8 @@ class Vault_Handler():
                 0, services, self.ui_handler.frame_handler.subframe_2, self.ui_handler.open_service, self.ui_handler.add_service
             )
 
+
+
     def new_vault(self): 
             new_vault_popup = self.ui_handler.create_popup("add vault")
     
@@ -60,14 +62,13 @@ class Vault_Handler():
                 except Exception as e:
                      messagebox.showerror("Error",e)
                 new_vault_popup.destroy()
+
                 self.ui_handler.load_vaults(0)
     
             tk.Button(new_vault_popup, text="choose locations", command=add_vault).place(
                 relheight=0.1, rely=0.5, relx=0, relwidth=0.3
             )
-            new_vault_popup.after(10, self.ui_handler.apply_fonts, new_vault_popup)
-            new_vault_popup.transient(self.ui_handler.root)
-            new_vault_popup.grab_set()
+            
 
 
 
