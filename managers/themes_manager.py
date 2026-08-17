@@ -1,38 +1,21 @@
 from models.Theme import Theme
-
+import json
 class Themes:
-    DARK = Theme(
-        background="#1E1E1E",
-        button="#2D2D2D",
-        text="#FFFFFF",
-        top_level="#252526",
-    )
+    def __init__(self):
+        with open("themes.json", "r") as themes_file:
+            data = json.load(themes_file)
 
-    LIGHT = Theme(
-        background="#F3F3F3",
-        button="#E1E1E1",
-        text="#111111",
-        top_level="#FFFFFF",
-    )
+        self.all = {
+            name: Theme(**values)
+            for name, values in data.items()
+        }
 
-    METRO = Theme(
-        background="#202020",
-        button="#0078D7",
-        text="#FFFFFF",
-        top_level="#2B2B2B",
-    )
-    
-    ALL = {
-        "dark": DARK,
-        "light": LIGHT,
-        "metro": METRO,
-    }
 class ThemeManager:
     def __init__(self) -> None:
-        pass
+        self.theme = Themes()
     def change_theme(self,new_theme):
-        if new_theme in Themes.ALL.keys():
-            self.current_theme = Themes.ALL[new_theme]
+        if new_theme in self.theme.all.keys():
+            self.current_theme = self.theme.all[new_theme]
         else:
             print("Theme not found")
     @property
@@ -49,4 +32,4 @@ class ThemeManager:
         return self.current_theme.top_level
     @property
     def theme_keys(self):
-        return Themes.ALL.keys()
+        return self.theme.all.keys()

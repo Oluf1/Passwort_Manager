@@ -1,0 +1,62 @@
+{
+  "DARK": {
+    "background": "#1E1E1E",
+    "button": "#2D2D2D",
+    "text": "#FFFFFF",
+    "top_level": "#252526"
+  },
+  "LIGHT": {
+    "background": "#F3F3F3",
+    "button": "#E1E1E1",
+    "text": "#111111",
+    "top_level": "#FFFFFF"
+  },
+  "METRO": {
+    "background": "#202020",
+    "button": "#0078D7",
+    "text": "#FFFFFF",
+    "top_level": "#2B2B2B"
+  },
+  "HIGH_CONTRAST": {
+    "background": "#000000",
+    "button": "#FFFFFF",
+    "text": "#FFFFFF",
+    "top_level": "#000000"
+  },
+  "OCEAN": {
+    "background": "#0B1F2A",
+    "button": "#1565C0",
+    "text": "#FFFFFF",
+    "top_level": "#123445"
+  },
+  "FOREST": {
+    "background": "#102218",
+    "button": "#287A4B",
+    "text": "#FFFFFF",
+    "top_level": "#183326"
+  },
+  "SUNSET": {
+    "background": "#2A1710",
+    "button": "#C4511A",
+    "text": "#FFFFFF",
+    "top_level": "#3A2118"
+  },
+  "PURPLE": {
+    "background": "#21152E",
+    "button": "#7046A8",
+    "text": "#FFFFFF",
+    "top_level": "#30203F"
+  },
+  "CREAM": {
+    "background": "#FFF8E7",
+    "button": "#E6D9B8",
+    "text": "#1A1A1A",
+    "top_level": "#FFFFFF"
+  },
+  "SLATE": {
+    "background": "#263238",
+    "button": "#546E7A",
+    "text": "#FFFFFF",
+    "top_level": "#37474F"
+  }
+}
