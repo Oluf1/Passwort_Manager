@@ -9,25 +9,26 @@ from argon2.low_level import hash_secret_raw,Type
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import App #avoids Circular Importing
 
 def encrypt(
     master_pass: bytes,
     password: bytes,
     service: str,
-    vault: str,
+    vault_name: str,
     mail: str,
     count: int,
     update_existing: bool,
-    new_mail:str
+    new_mail:str,
+    app:"App"
 ):
-    with open("config.json") as f:
-        config = json.load(f)
-    
+    vault = app.VAULTMANAGER.get_vault(vault_name)
         
-    Kdf_type = config["config"]["Kdf_type"]
-    key_path = config["Vaults"][vault]["directories"][0]
-    data_path = config["Vaults"][vault]["directories"][1]
+    Kdf_type = app.CONFIG.default_kdf
+    key_path = vault.key_path
+    data_path = vault.data_path
 
     nonce = os.urandom(12)  # saved with the password
     try:
@@ -87,6 +88,7 @@ def encrypt(
         "Nonce": base64.b64encode(nonce).decode(),
         "salt": base64.b64encode(salt).decode(),
         "iterations": kdf_iterations,
+        "Kdf_type":Kdf_type,
         "ciphertext": base64.b64encode(encrypted_password).decode(),
         "aad": base64.b64encode(aad).decode(),
         "count": count,
@@ -111,14 +113,13 @@ def encrypt(
                     count +=1 
             data_to_save["count"] = count
         
-        for entry in database["services"][service]:
-            if entry["Mail"] == mail and entry["count"]== count:
+        for i, entry in enumerate(database["services"][service]):
+            if entry["Mail"] == mail and entry["count"] == count:
                 data_to_save["Mail"] = new_mail
-                database["services"][service][entry] = data_to_save
+                database["services"][service][i] = data_to_save
                 break
         else:
-            messagebox.showerror("Error","no matching entry found")
-            return
+            raise Exception("no matching entry found")
     
     with open(data_path, "w") as f:
         json.dump(database, f, indent=2)

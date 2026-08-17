@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import hmac
-from tkinter import messagebox
+
 import json
 
 from argon2.low_level import hash_secret_raw,Type
@@ -9,16 +9,18 @@ import cryptography.exceptions
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import App #avoids Circular Importing
 
-
-def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)-> str:    
-    with open("config.json") as f:
-        config = json.load(f)
+def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:str,app:"App")-> str:    
+    vault = app.VAULTMANAGER.get_vault(vault_name)
     
-    if config["Vaults"][vault]["type"] == "server":
+    if vault.vault_type == "server":
         return "error server not yet supported"
-    key_path = config["Vaults"][vault]["directories"][0]
-    data_path = config["Vaults"][vault]["directories"][1]
+
+    key_path = vault.key_path
+    data_path = vault.data_path
 
     try:
         with open(key_path, "r") as f:
@@ -91,16 +93,11 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault:str)->
                 ).decode("utf-8")
                 
                 return decrypted_password
-
             except cryptography.exceptions.InvalidTag:
-                messagebox.showerror("Error","Wrong masterpassword")
-                return "Wrong master password"
-
+                app.ui_handler.show_error("Wrong masterpassword")
+                raise Exception("Wrong masterpassword")
             except Exception as error:
-                messagebox.showerror("Error",str(error))
-                return f"Different error: {error}"
+                raise Exception(f"Different error {error}")
 
-            break
     else:
-        messagebox.showerror("Error","No matching entry")
-        return "No matching entry"
+        raise Exception("No matching entry")
