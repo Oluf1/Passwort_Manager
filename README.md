@@ -12,5 +12,5 @@ In the config file the first string refers to the directory where the key is sav
 
 
 run pip install -r requirements.txt
-or py -m pip install -r requirenments.txt
+or py -m pip install -r requirements.txt
 to install all required librarys

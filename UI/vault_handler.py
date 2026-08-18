@@ -6,6 +6,10 @@ import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
 
+
+
+# dependencies from ui_handler: render_pages, selected_vault, clear_subframes, vaultmanager(vaults+get_vault_names+create_local_vault+load_vaults), create_popup
+
 class Vault_Handler():
     def __init__(self,ui_handler:"UI_handler"):
           self.ui_handler = ui_handler
