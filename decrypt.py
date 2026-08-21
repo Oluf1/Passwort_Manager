@@ -1,17 +1,17 @@
 import base64
 import hashlib
 import hmac
-
 import json
+from typing import TYPE_CHECKING
 
-from argon2.low_level import hash_secret_raw,Type
 import cryptography.exceptions
+from argon2.low_level import Type, hash_secret_raw
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from main import App #avoids Circular Importing
+    from main import App  #avoids Circular Importing
 
 def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:str,app:"App")-> str:    
     vault = app.VAULTMANAGER.get_vault(vault_name)

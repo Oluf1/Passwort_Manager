@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import messagebox, simpledialog
 from pathlib import Path
+from tkinter import messagebox, simpledialog
 from typing import TYPE_CHECKING
 
 from .Labelcombobox import Label_combobox

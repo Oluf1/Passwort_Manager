@@ -3,15 +3,15 @@ import hashlib
 import hmac
 import json
 import os
-from tkinter import messagebox
+from typing import TYPE_CHECKING
 
-from argon2.low_level import hash_secret_raw,Type
+from argon2.low_level import Type, hash_secret_raw
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from main import App #avoids Circular Importing
+    from main import App  #avoids Circular Importing
 
 def encrypt(
     master_pass: bytes,

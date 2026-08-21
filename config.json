@@ -1,6 +1,6 @@
 {
     "items_per_page": 11,
     "font_family": "Arial CE",
-    "theme": "SUNSET",
+    "theme": "SLATE",
     "Kdf_type": "Argon2"
 }

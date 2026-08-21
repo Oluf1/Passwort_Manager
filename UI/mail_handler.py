@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .UI_handler import UI_handler
-from encrypt import encrypt
-from decrypt import decrypt
 import random
-from tkinter import simpledialog
-import tkinter as tk
-from tkinter import messagebox
-import string
 import secrets
+import string
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+from decrypt import decrypt
+from encrypt import encrypt
 
 
 class MailManager:

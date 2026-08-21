@@ -1,6 +1,7 @@
 import json
 from typing import List
 
+
 class ConfigManager:
     def __init__(self, path="config.json"):
         self.path = path

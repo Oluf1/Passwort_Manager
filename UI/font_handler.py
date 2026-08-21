@@ -1,5 +1,6 @@
-from tkinter import messagebox
 import tkinter.font as tkfont
+from tkinter import messagebox
+
 
 def apply_fonts(parent,ui_handler):
 
@@ -36,7 +37,7 @@ def fit_font(widget, text: str,ui_handler):
             font.configure(size=best)
 
             widget.config(
-                font=font, text=text, fg=ui_handler.font_manager.text_color, bg=ui_handler.theme_manager.button_color
+                font=font, text=text, fg=ui_handler.font_manager.text_color(), bg=ui_handler.theme_manager.button_color
             )
 
         except Exception as e:

@@ -1,7 +1,9 @@
-from pathlib import Path
-import json
 import binascii
+import json
 import os
+from pathlib import Path
+
+
 class Vault:
     def __init__(self,
                 name: str,

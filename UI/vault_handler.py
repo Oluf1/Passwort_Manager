@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .UI_handler import UI_handler
-from tkinter import messagebox
 import tkinter as tk
-from tkinter import filedialog
 from pathlib import Path
-
-
+from tkinter import filedialog, messagebox
 
 # dependencies from ui_handler: render_pages, selected_vault, clear_subframes, vaultmanager(vaults+get_vault_names+create_local_vault+load_vaults), create_popup
 

@@ -1,6 +1,7 @@
 import managers
 from UI.UI_handler import UI_handler
 
+
 class App:
     CONFIG = managers.CONFIG
     THEME_MANAGER = managers.THEME_MANAGER

@@ -1,4 +1,6 @@
 import tkinter as tk
+
+
 def scale_toplevel( window: tk.Toplevel, size: float, theme_manager):
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()

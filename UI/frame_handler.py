@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from.UI_handler import UI_handler
+    from .UI_handler import UI_handler
 import tkinter as tk
+
+
 class Frame_Handler:
     def __init__(self,ui_handler:"UI_handler") -> None:
         self.ui_handler = ui_handler

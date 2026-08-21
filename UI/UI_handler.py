@@ -1,19 +1,22 @@
 import tkinter as tk
+from typing import TYPE_CHECKING
+
 from .main_menu import load_main_menu
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from main import App #avoids Circular Importing#temporary so as to not break parts 
-    from managers import Font_manager, ThemeManager,ConfigManager,VaultManager
-from .frame_handler import Frame_Handler
-from .page_handler import render_pages
+    from main import App  #avoids Circular Importing#temporary so as to not break parts 
+    from managers import ConfigManager, Font_manager, ThemeManager, VaultManager
+from tkinter import messagebox
+
 from .config_ui import ConfigUI
 from .font_handler import apply_fonts
-from .toplevel_handler import scale_toplevel,create_popup
-from .vault_handler import Vault_Handler
-from .service_handler import ServiceHandler
+from .frame_handler import Frame_Handler
 from .mail_handler import MailManager
-from tkinter import messagebox
+from .page_handler import render_pages
+from .service_handler import ServiceHandler
+from .toplevel_handler import create_popup, scale_toplevel
+from .vault_handler import Vault_Handler
+
 
 class UI_handler:
     def __init__(self,
