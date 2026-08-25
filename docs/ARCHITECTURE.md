@@ -1,5 +1,5 @@
 Password_Manager/
-├── .gitignore                         # Fix: removed the "tests/" line
+├── .gitignore                         
 ├── README.md                          # revised: correct installation/data path documentation
 ├── pyproject.toml                     # NEW — replaces requirements.txt
 ├── todo.md                            # remains unchanged at the root

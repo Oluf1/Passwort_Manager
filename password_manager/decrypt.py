@@ -94,7 +94,7 @@ def decrypt(master_pass: bytes, service: str, mail: str, count: int,vault_name:s
                 
                 return decrypted_password
             except cryptography.exceptions.InvalidTag:
-                app.ui_handler.show_error("Wrong masterpassword")
+                app.ui_handler.messagebox_error("Wrong masterpassword")
                 raise Exception("Wrong masterpassword")
             except Exception as error:
                 raise Exception(f"Different error {error}")

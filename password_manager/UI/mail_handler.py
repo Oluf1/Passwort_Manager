@@ -63,7 +63,8 @@ class MailManager:
                     self.ui_handler.app
                 )
             except Exception as error:
-                self.ui_handler.show_error(error)
+                self.ui_handler.messagebox_error(f"{error}")
+                return
 
             password_Label.configure(text=f"Password: {decrypted_password}")
 
@@ -209,7 +210,7 @@ class MailManager:
                         self.ui_handler.app
                     )
                 except Exception as error:
-                    self.ui_handler.show_error(error)
+                    self.ui_handler.messagebox_error(f"{error}")
                 new_data_popup.destroy()
                 mail_popup.destroy()
                 self.open_mail(name)

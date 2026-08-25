@@ -1,4 +1,4 @@
-import managers
+import managers as managers
 from UI.UI_handler import UI_handler
 
 
