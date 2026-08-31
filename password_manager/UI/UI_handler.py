@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from .main_menu import load_main_menu
 
@@ -16,7 +16,16 @@ from .page_handler import render_pages
 from .service_handler import ServiceHandler
 from .toplevel_handler import create_popup, scale_toplevel
 from .vault_handler import Vault_Handler
+from dataclasses import dataclass
 
+
+@dataclass 
+class UiConfigDependencies: ## Do This for most if not all dependencies
+    _get_items_per_page: Callable[[], int]
+    _supported_kdfs: Callable
+    @property
+    def items_per_page(self):
+        self._get_items_per_page()
 
 class UI_handler:
     def __init__(self,

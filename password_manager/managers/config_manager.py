@@ -27,7 +27,7 @@ class ConfigManager:
         assert self._config_data is not None
         return self._config_data
         
-
+    
     @property
     def theme_name(self):
         return self.config["theme"]
