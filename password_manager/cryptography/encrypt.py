@@ -3,30 +3,23 @@ import hashlib
 import hmac
 import json
 import os
-from tkinter import messagebox
 
-from argon2.low_level import hash_secret_raw,Type
+from argon2.low_level import Type, hash_secret_raw
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from main import App #avoids Circular Importing
 
 def encrypt(
     master_pass: bytes,
     password: bytes,
     service: str,
-    vault_name: str,
     mail: str,
     count: int,
     update_existing: bool,
     new_mail:str,
-    app:"App"
+    vault,
+    Kdf_type
 ):
-    vault = app.VAULTMANAGER.get_vault(vault_name)
-        
-    Kdf_type = app.CONFIG.default_kdf
     key_path = vault.key_path
     data_path = vault.data_path
 

@@ -1,7 +1,8 @@
-import tkinter as tk
 import json
+import tkinter as tk
 from tkinter import messagebox
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .UI_handler import UI_handler
 

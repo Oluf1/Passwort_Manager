@@ -1,11 +1,13 @@
-from pathlib import Path
 import json
-
-from UI.vault_handler import get_paths
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+from models.Vault import Vault
+from UI.vault_handler import get_paths
+
 if TYPE_CHECKING:
     from UI.UI_handler import UI_handler
-from models.Vault import Vault
+
 
 class VaultManager:
     def __init__(self,app, vaults_file="vaults.json"):
@@ -26,7 +28,7 @@ class VaultManager:
             try:
                 self.vaults[name] = Vault(name, vault_type, key_path, data_path)
             except Exception as error:
-                self.app.ui_handler.show_error(e)
+                self.app.ui_handler.show_error(error)
 
     def save_vaults(self):
         data = {}

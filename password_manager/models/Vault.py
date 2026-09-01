@@ -1,7 +1,9 @@
-from pathlib import Path
-import json
 import binascii
+import json
 import os
+from pathlib import Path
+
+
 class Vault:
     def __init__(self,
                 name: str,
@@ -22,6 +24,8 @@ class Vault:
                 data = json.load(f)
                 services = list(data["services"].keys())
                 return services
+        else:
+            raise ValueError("The accesed vault is not local.")
             
     def add_service(self,new_name:str)-> None:
         with open(self.data_path)as services:

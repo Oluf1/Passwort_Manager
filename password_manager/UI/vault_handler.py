@@ -1,14 +1,17 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .UI_handler import UI_handler
-from tkinter import messagebox
 import tkinter as tk
-from tkinter import filedialog
 from pathlib import Path
+from tkinter import filedialog, messagebox
+
+# dependencies from ui_handler: render_pages, selected_vault, clear_subframes, vaultmanager(vaults+get_vault_names+create_local_vault+load_vaults), create_popup
 
 class Vault_Handler():
     def __init__(self,ui_handler:"UI_handler"):
           self.ui_handler = ui_handler
+          
     def load_vaults(self, page: int):
             self.selected_vault = ""
             self.ui_handler.render_pages(
@@ -20,9 +23,11 @@ class Vault_Handler():
     
             vault = self.ui_handler.vault_manager.vaults[name]
             services: list[str] = []
-            services = vault.get_services()
-            if services is None:
-                messagebox.showerror("Error","not a valid save type")
+            try:
+                services = vault.get_services()
+            except Exception as E:
+                self.ui_handler.messagebox_error(f"{E}")
+                return
     
             self.ui_handler.render_pages(
                 0, services, self.ui_handler.frame_handler.subframe_2, self.ui_handler.open_service, self.ui_handler.add_service
@@ -60,7 +65,7 @@ class Vault_Handler():
                 try:
                     self.ui_handler.vault_manager.create_local_vault(vault_name)
                 except Exception as e:
-                     messagebox.showerror("Error",e)
+                     messagebox.showerror("Error",f"{e}")
                 new_vault_popup.destroy()
 
                 self.ui_handler.load_vaults(0)

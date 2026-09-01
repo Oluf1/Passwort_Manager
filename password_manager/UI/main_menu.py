@@ -1,7 +1,8 @@
 import tkinter as tk
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from .UI_handler import UI_handler 
+    from .UI_handler import UI_handler
 def load_main_menu(ui_handler:"UI_handler"):
         
 

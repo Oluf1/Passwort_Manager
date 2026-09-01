@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .UI_handler import UI_handler
-from encrypt import encrypt
-from decrypt import decrypt
 import random
-from tkinter import simpledialog
-import tkinter as tk
-from tkinter import messagebox
-import string
 import secrets
+import string
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+from cryptography.decrypt import decrypt
+from cryptography.encrypt import encrypt
 
 
 class MailManager:
@@ -53,16 +54,18 @@ class MailManager:
             Mail = name[0]
             count = int(name[1])
             try:
+                selected_service = self.ui_handler.app.selected_service
+                vault= self.ui_handler.vault_manager.get_vault(selected_service)
                 decrypted_password = decrypt(
                     master_password,
                     self.ui_handler.app.selected_service,
                     Mail,
                     count,
-                    self.ui_handler.app.selected_vault,
-                    self.ui_handler.app
+                    vault
                 )
             except Exception as error:
-                self.ui_handler.show_error(error)
+                self.ui_handler.messagebox_error(f"{error}")
+                return
 
             password_Label.configure(text=f"Password: {decrypted_password}")
 
@@ -196,19 +199,21 @@ class MailManager:
                     )
                     return
                 try:
+                    selected_vault = self.ui_handler.app.selected_vault
+                    vault = self.ui_handler.vault_manager.get_vault(selected_vault)
                     encrypt(
                         new_master.encode(),
                         new_password.encode(),
                         self.ui_handler.app.selected_service,
-                        self.ui_handler.app.selected_vault,
                         name[0],
                         int(name[1]),
                         True,
                         new_name,
-                        self.ui_handler.app
+                        vault,
+                        self.ui_handler.config.default_kdf
                     )
                 except Exception as error:
-                    self.ui_handler.show_error(error)
+                    self.ui_handler.messagebox_error(f"{error}")
                 new_data_popup.destroy()
                 mail_popup.destroy()
                 self.open_mail(name)
@@ -293,9 +298,18 @@ class MailManager:
             elif master != confirmation_master:
                 messagebox.showerror("Error", "Master passwords not matching")
                 return
-
+            selected_vault = self.ui_handler.app.selected_vault
+            vault = self.ui_handler.vault_manager.get_vault(selected_vault)
             encrypt(
-                master.encode(), password.encode(), service, vault, name, 1, False, name,self.ui_handler.app
+                master.encode(),
+                password.encode(),
+                service,
+                name,
+                1,
+                False,
+                name,
+                vault,
+                self.ui_handler.config.default_kdf
             )
             add_mail_popup.destroy()
             self.ui_handler.open_service(self.ui_handler.app.selected_service)

@@ -1,5 +1,6 @@
-import managers
+import managers as managers
 from UI.UI_handler import UI_handler
+
 
 class App:
     CONFIG = managers.CONFIG
@@ -8,11 +9,13 @@ class App:
     
     def __init__(self):
         self.VAULTMANAGER = managers.VaultManager(self)
-        self.ui_handler = UI_handler(self.FONT_MANAGER,
-                                    self.THEME_MANAGER,
-                                    self.CONFIG,
-                                    self.VAULTMANAGER,
-                                    self)
+        self.ui_handler = UI_handler(
+            self.FONT_MANAGER,
+            self.THEME_MANAGER,
+            self.CONFIG,
+            self.VAULTMANAGER,
+            self
+            )
         
 
         
@@ -23,7 +26,7 @@ class App:
 
         
 
-    def setup(self): #KEEP
+    def setup(self):
         
         
         self.VAULTMANAGER.load_vaults() 
